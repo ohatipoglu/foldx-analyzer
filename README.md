@@ -6,7 +6,7 @@ PositionScan • RepairPDB • BuildModel • AnalyseComplex • Stability • P
 → Otomatik algılar → Grafik GUI içinde gösterir → PNG + CSV otomatik kaydeder
 
 ![demo](https://github.com/ohatipoglu/foldx-analyzer/raw/main/demo.gif)  
-*(demo.gif yoksa şimdilik ekran görüntüsü koyabilirsin)*
+
 
 ### Özellikler
 - 7+ FoldX komutunu **otomatik algılar**  
