@@ -1,0 +1,69 @@
+anyio==4.11.0
+Bottleneck @ file:///C:/miniconda3/conda-bld/bottleneck_1761938072950/work
+build==1.3.0
+CacheControl==0.14.4
+certifi==2025.11.12
+charset-normalizer==3.4.4
+cleo==2.1.0
+colorama==0.4.6
+contourpy @ file:///C:/b/abs_f2u2o_8s9g/croot/contourpy_1732540071787/work
+crashtest==0.4.1
+cycler @ file:///tmp/build/80754af9/cycler_1637851556182/work
+distlib==0.4.0
+dulwich==0.24.10
+fastjsonschema==2.21.2
+filelock==3.20.0
+findpython==0.7.1
+fonttools @ file:///C:/miniconda3/conda-bld/fonttools_1759754890176/work
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.11
+installer==0.7.0
+jaraco.classes==3.4.0
+jaraco.context==6.0.1
+jaraco.functools==4.3.0
+keyring==25.7.0
+kiwisolver @ file:///C:/b/abs_faf90xet7a/croot/kiwisolver_1737040915779/work
+matplotlib==3.10.6
+mkl-service==2.5.2
+mkl_fft @ file:///C:/miniconda3/conda-bld/mkl_fft_1761592917950/work
+mkl_random @ file:///C:/miniconda3/conda-bld/mkl_random_1761593166070/work
+more-itertools==10.8.0
+msgpack==1.1.2
+numexpr @ file:///C:/miniconda3/conda-bld/numexpr_1762165727877/work
+numpy @ file:///C:/miniconda3/conda-bld/numpy_and_numpy_base_1762528516215/work/dist/numpy-2.3.4-cp312-cp312-win_amd64.whl#sha256=da63c4b60f239c615b8f0360ea999bf65e6c5007c4a0af98b6c0ee79d59a4aa2
+packaging==25.0
+pandas @ file:///C:/miniconda3/conda-bld/pandas_1762332401650/work/dist/pandas-2.3.3-cp312-cp312-win_amd64.whl#sha256=31f3f2ea38ad67d0e1e92b191f191182ac281491c0bbe0b8a2c362da578d5ab8
+pbs-installer==2025.10.31
+pillow @ file:///C:/b/abs_b50vowcrzo/croot/pillow_1738010273782/work
+pkginfo==1.12.1.2
+platformdirs==4.5.0
+poetry==2.2.1
+poetry-core==2.2.1
+poetry-plugin-export==1.9.0
+pyparsing @ file:///C:/b/abs_40z8gyj9wi/croot/pyparsing_1731445739241/work
+pyproject_hooks==1.2.0
+PyQt6==6.9.1
+PyQt6_sip @ file:///C:/miniconda3/conda-bld/pyqt-split_1757511035565/work/pyqt_sip
+python-dateutil @ file:///C:/b/abs_3au_koqnbs/croot/python-dateutil_1716495777160/work
+pytz @ file:///C:/b/abs_f8wdzeix0n/croot/pytz_1752135878094/work
+pywin32-ctypes==0.2.3
+RapidFuzz==3.14.3
+requests==2.32.5
+requests-toolbelt==1.0.0
+seaborn @ file:///C:/b/abs_0bv5x0ucxb/croot/seaborn_1749110315600/work
+setuptools==80.9.0
+shellingham==1.5.4
+sip @ file:///C:/b/abs_f6ow8vlbb7/croot/sip_1756224172742/work
+six @ file:///C:/b/abs_149wuyuo1o/croot/six_1744271521515/work
+sniffio==1.3.1
+tomlkit==0.13.3
+tornado @ file:///C:/b/abs_7dzpc171lf/croot/tornado_1748956950306/work
+trove-classifiers==2025.11.14.15
+typing_extensions==4.15.0
+tzdata @ file:///croot/python-tzdata_1746123641790/work
+urllib3==2.5.0
+virtualenv==20.35.4
+wheel==0.45.1
+zstandard==0.25.0
