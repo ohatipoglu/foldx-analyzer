@@ -1,3 +1,4 @@
+import logging
 import tkinter as tk
 
 from foldx_analysis import FoldXAnalyzerGUI
@@ -5,30 +6,35 @@ from pdb_analyzer import PDBAnalyzerApp
 
 
 def run_combined_gui() -> None:
-    """
-    Launch a combined GUI with two windows:
-    - FoldX Analyzer
-    - PDB / PLIP Analyzer
+    """Launch FoldX Analyzer and PDB/PLIP Analyzer in two coordinated windows.
 
-    Her iki uygulama da aynı Tk başlatıcısını (root) paylaşır, ayrı Toplevel pencerelerinde çalışır.
+    Both share a single hidden Tk root as the event-loop owner.  Closing
+    either child window destroys the entire application cleanly.
     """
     root = tk.Tk()
-    root.withdraw()  # Ana pencereyi gizle, sadece alt pencereleri göster
+    root.withdraw()
 
-    # FoldX penceresi
     foldx_win = tk.Toplevel(root)
     foldx_win.title("FoldX Analyzer")
     FoldXAnalyzerGUI(foldx_win)
 
-    # PDB / PLIP penceresi
     pdb_win = tk.Toplevel(root)
     pdb_win.title("PDB / PLIP Analyzer")
     PDBAnalyzerApp(pdb_win)
 
-    # Root'u görünmez ama event-loop sahibi olarak kullan
+    def _on_close() -> None:
+        root.destroy()
+
+    foldx_win.protocol("WM_DELETE_WINDOW", _on_close)
+    pdb_win.protocol("WM_DELETE_WINDOW", _on_close)
+    root.protocol("WM_DELETE_WINDOW", _on_close)
+
     root.mainloop()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.WARNING,
+        format='%(asctime)s %(name)s %(levelname)s %(message)s',
+    )
     run_combined_gui()
-
