@@ -217,21 +217,37 @@ def _compute_scan_energies(
 
 def process_positionscan(
     df: pd.DataFrame,
-) -> tuple[list[dict], list[str]]:
-    df = _parse_scan_rows(df)
-    results = _compute_scan_energies(df, AMINO_ACIDS, 'amino_acid')
-    return results, AMINO_ACIDS
+) -> tuple[pd.DataFrame, list[str]]:
+    """Process PositionScan data, aggregating energies by amino acid."""
+    df_parsed = _parse_scan_rows(df)
+    results_list = _compute_scan_energies(df_parsed, AMINO_ACIDS, 'amino_acid')
+    if not results_list:
+        return pd.DataFrame(), AMINO_ACIDS
+
+    stats = (pd.DataFrame(results_list)
+             .groupby('amino_acid')['energy']
+             .agg(['mean', 'std', 'count'])
+             .reset_index())
+    stats['sem'] = stats['std'] / np.sqrt(stats['count'])
+    return stats, AMINO_ACIDS
 
 
 def process_rnascan(
     df: pd.DataFrame,
-) -> tuple[list[dict], list[str]]:
-    df = _parse_scan_rows(df)
-    results = _compute_scan_energies(df, RNA_BASES, 'base')
-    return results, RNA_BASES
+) -> tuple[pd.DataFrame, list[str]]:
+    """Process RnaScan data, aggregating energies by base."""
+    df_parsed = _parse_scan_rows(df)
+    results_list = _compute_scan_energies(df_parsed, RNA_BASES, 'base')
+    if not results_list:
+        return pd.DataFrame(), RNA_BASES
+
+    stats = (pd.DataFrame(results_list).groupby('base')['energy']
+             .agg(['mean', 'std', 'count']).reset_index())
+    stats['sem'] = stats['std'] / np.sqrt(stats['count'])
+    return stats, RNA_BASES
 
 
-def process_repairpdb(df: pd.DataFrame) -> tuple[list[dict], None]:
+def process_repairpdb(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
     df = df.copy()
     df['_model'] = df['Pdb'].astype(str).str.extract(r'_(\d+)').astype(float)
     energy_col = first_existing_column(df, ENERGY_COLS_TOTAL)
@@ -246,10 +262,10 @@ def process_repairpdb(df: pd.DataFrame) -> tuple[list[dict], None]:
         val = pd.to_numeric(row[energy_col], errors='coerce')
         if not pd.isna(val):
             results.append({'model': int(row['_model']), 'energy': float(val)})
-    return results, None
+    return pd.DataFrame(results), None
 
 
-def process_buildmodel(df: pd.DataFrame) -> tuple[list[dict], None]:
+def process_buildmodel(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
     energy_col = first_existing_column(df, ENERGY_COLS_AVERAGE)
     if not energy_col:
         logger.warning("process_buildmodel: no energy column found.")
@@ -261,10 +277,10 @@ def process_buildmodel(df: pd.DataFrame) -> tuple[list[dict], None]:
         for pdb, val in zip(pdb_series, energies)
         if not pd.isna(val)
     ]
-    return results, None
+    return pd.DataFrame(results), None
 
 
-def process_analysecomplex(df: pd.DataFrame) -> tuple[list[dict], None]:
+def process_analysecomplex(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
     back_col = first_existing_column(df, BACKBONE_COLS)
     side_col = first_existing_column(df, SIDECHAIN_COLS)
     inter_col = first_existing_column(df, INTERACTION_COLS)
@@ -283,27 +299,29 @@ def process_analysecomplex(df: pd.DataFrame) -> tuple[list[dict], None]:
     df_res = pd.DataFrame(results)
     comp_cols = [c for c in ['backbone', 'sidechain', 'interaction']
                  if c in df_res.columns]
-    return df_res.dropna(subset=comp_cols, how='all').to_dict('records'), None
+    return df_res.dropna(subset=comp_cols, how='all'), None
 
 
-def process_stability(df: pd.DataFrame) -> tuple[list[dict], None]:
+def process_stability(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
     energy_col = first_existing_column(df, ENERGY_COLS_TOTAL)
     if not energy_col or len(df) == 0:
-        return [], None
+        return pd.DataFrame(), None
     val = pd.to_numeric(df[energy_col].iloc[0], errors='coerce')
     if pd.isna(val):
-        return [], None
+        return pd.DataFrame(), None
     pdb_val = str(df['Pdb'].iloc[0]) if 'Pdb' in df.columns else ''
-    return [{'pdb': pdb_val, 'energy': float(val)}], None
+    return pd.DataFrame([{'pdb': pdb_val, 'energy': float(val)}]), None
 
 
-def process_pssm(df: pd.DataFrame) -> tuple[list[dict], None]:
+def process_pssm(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
     df = df.copy()
     df.columns = [str(c) for c in df.columns]
     numeric_df = df.apply(pd.to_numeric, errors='coerce')
     if numeric_df.notna().sum().sum() == 0:
-        return [], None
-    return df.fillna('').to_dict('records'), None
+        return pd.DataFrame(), None
+    # Return the original df, as the renderer expects string data for columns/rows
+    # and will perform numeric conversion itself.
+    return df, None
 
 
 # ---------------------------------------------------------------------------

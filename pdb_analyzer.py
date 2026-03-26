@@ -2,13 +2,13 @@ import logging
 import os
 import shutil
 import subprocess
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, scrolledtext, ttk
+from tkinter import filedialog, messagebox
 
+import customtkinter as ctk
 import numpy as np
 from Bio.PDB import PDBParser, NeighborSearch
-from PIL import Image, ImageTk
+from PIL import Image
 from plip.exchange.report import BindingSiteReport
 from plip.structure.preparation import PDBComplex
 
@@ -21,6 +21,7 @@ from constants import (
     PLIP_IMAGE_PREVIEW_SIZE,
     PYMOL_WIDTH,
     PYMOL_HEIGHT,
+    PYMOL_EXECUTABLE_PATH
 )
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,11 @@ def _pymol_quote(path: str) -> str:
 
 
 def _resolve_pymol_executable() -> str:
+    # First, check the user-configured path
+    if PYMOL_EXECUTABLE_PATH and PYMOL_EXECUTABLE_PATH.lower() != 'pymol':
+        if shutil.which(PYMOL_EXECUTABLE_PATH) or os.path.exists(PYMOL_EXECUTABLE_PATH):
+             return PYMOL_EXECUTABLE_PATH
+
     for candidate in ("pymol", "pymol.exe", "PyMOL"):
         resolved = shutil.which(candidate)
         if resolved:
@@ -61,6 +67,7 @@ def _write_pymol_script(
     hotspot_residues: set[tuple[str, int]] | None = None,
     width: int = PYMOL_WIDTH,
     height: int = PYMOL_HEIGHT,
+    interactive: bool = False,
 ) -> str:
     pdb_path = str(Path(pdb_file).resolve())
     img_path = str(Path(image_file).resolve())
@@ -98,8 +105,11 @@ def _write_pymol_script(
         f"zoom {zoom_target}, 12",
         f"ray {width}, {height}",
         f"png {_pymol_quote(img_path)}, dpi=300",
-        "quit",
     ]
+
+    # If interactive is True, we DO NOT add "quit" so the PyMOL window stays open
+    if not interactive:
+        script_lines.append("quit")
 
     with open(script_path, "w", encoding="utf-8") as f:
         f.write("\n".join(script_lines) + "\n")
@@ -212,7 +222,6 @@ def calculate_disulfide_distance(
     if cys2_sg is None:
         raise ValueError(f"CYS {cys2_res} in chain {cys2_chain} not found.")
 
-    # np.linalg.norm replaces manual math.sqrt(np.sum(diff * diff))
     return float(np.linalg.norm(cys1_sg.coord - cys2_sg.coord))
 
 
@@ -248,6 +257,7 @@ def run_plip_analysis(
     pdb_file: str,
     output_dir: str | None = None,
     ligand_selection: str = "organic",
+    interactive_3d: bool = False,
 ) -> tuple[str, str | None]:
     try:
         mol = PDBComplex()
@@ -320,18 +330,26 @@ def run_plip_analysis(
             image_file=image_file,
             ligand_selection=ligand_selection,
             hotspot_residues=all_hotspots,
+            interactive=interactive_3d
         )
 
         pymol_exe = _resolve_pymol_executable()
         try:
-            subprocess.run(
-                [pymol_exe, "-cq", pymol_script],
-                check=True, capture_output=True, text=True,
-            )
+            if interactive_3d:
+                # Run PyMOL asynchronously without the '-c' (headless) flag so the UI opens.
+                # We still use '-q' (quiet) to suppress text output.
+                subprocess.Popen([pymol_exe, "-q", pymol_script])
+                output.append("\nPyMOL has been launched in 3D interactive mode.\n")
+            else:
+                # Run PyMOL headlessly, block until the PNG is generated, then close.
+                subprocess.run(
+                    [pymol_exe, "-cq", pymol_script],
+                    check=True, capture_output=True, text=True,
+                )
         except FileNotFoundError as e:
             raise FileNotFoundError(
-                "PyMOL executable not found. "
-                "Install PyMOL and ensure 'pymol' is on PATH."
+                f"PyMOL executable not found at '{pymol_exe}'. "
+                "Ensure PyMOL is installed and check config.ini."
             ) from e
         except subprocess.CalledProcessError as e:
             stderr = (e.stderr or "").strip()
@@ -341,7 +359,9 @@ def run_plip_analysis(
                 f"PyMOL failed while generating the image.\n{details}".strip()
             ) from e
 
-        output.append(f"\nVisualization image generated: {image_file}. Displayed in GUI.\n")
+        if not interactive_3d:
+            output.append(f"\nVisualization image generated: {image_file}. Displayed in GUI.\n")
+            
         return "".join(output), image_file
 
     except Exception as e:
@@ -356,33 +376,30 @@ def run_plip_analysis(
 # ---------------------------------------------------------------------------
 
 class PDBAnalyzerApp:
-    def __init__(self, root: tk.Misc) -> None:
+    def __init__(self, root: ctk.CTkToplevel) -> None:
         self.root = root
         self.root.title("PDB Analyzer")
         self.root.geometry("1200x900")
 
-        self.pdb_file = tk.StringVar()
-        self.output_dir = tk.StringVar(value=os.getcwd())
-        self.ligand_selection = tk.StringVar(value="organic")
-        self.threshold = tk.DoubleVar(value=DEFAULT_NEIGHBOR_THRESHOLD)
-        self.disulfide_min = tk.DoubleVar(value=DEFAULT_DISULFIDE_MIN)
-        self.disulfide_max = tk.DoubleVar(value=DEFAULT_DISULFIDE_MAX)
+        self.pdb_file = ctk.StringVar()
+        self.output_dir = ctk.StringVar(value=os.getcwd())
+        self.ligand_selection = ctk.StringVar(value="organic")
+        self.threshold = ctk.DoubleVar(value=DEFAULT_NEIGHBOR_THRESHOLD)
+        self.disulfide_min = ctk.DoubleVar(value=DEFAULT_DISULFIDE_MIN)
+        self.disulfide_max = ctk.DoubleVar(value=DEFAULT_DISULFIDE_MAX)
+        self.interactive_3d_var = ctk.BooleanVar(value=False)
 
         # Shared PDB file selector — above the notebook, visible on both tabs
         self._build_shared_header()
 
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.notebook = ctk.CTkTabview(self.root)
+        self.notebook.pack(fill='both', expand=True, padx=20, pady=10)
 
-        self.biopython_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.biopython_frame, text="Biopython Analysis")
-
-        self.plip_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.plip_frame, text="PLIP Analysis")
+        self.biopython_tab = self.notebook.add("Biopython Analysis")
+        self.plip_tab = self.notebook.add("PLIP Analysis")
 
         self._build_biopython_tab()
         self._build_plip_tab()
-        self._build_results_area()
 
         self.root.focus_force()
 
@@ -392,69 +409,74 @@ class PDBAnalyzerApp:
 
     def _build_shared_header(self) -> None:
         """Single PDB file selector shared across both tabs."""
-        frame = tk.Frame(self.root)
-        frame.pack(pady=10, fill=tk.X, padx=10)
-        tk.Label(frame, text="PDB File:").pack(side=tk.LEFT, padx=5)
-        tk.Entry(frame, textvariable=self.pdb_file,
-                 width=50).pack(side=tk.LEFT, padx=5)
-        tk.Button(frame, text="Browse",
-                  command=self.browse_pdb).pack(side=tk.LEFT, padx=5)
+        frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        frame.pack(pady=10, fill='x', padx=20)
+        ctk.CTkLabel(frame, text="PDB File:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=5)
+        ctk.CTkEntry(frame, textvariable=self.pdb_file, width=500, state='readonly').pack(side='left', padx=10)
+        ctk.CTkButton(frame, text="Browse", command=self.browse_pdb, width=100).pack(side='left', padx=5)
 
     def _build_biopython_tab(self) -> None:
-        frame = tk.Frame(self.biopython_frame)
-        frame.pack(pady=10)
-        tk.Label(frame, text="Neighbor Threshold (Å):").grid(
-            row=0, column=0, padx=5, pady=5)
-        tk.Entry(frame, textvariable=self.threshold,
-                 width=10).grid(row=0, column=1, padx=5)
-        tk.Label(frame, text="Disulfide Min (Å):").grid(
-            row=1, column=0, padx=5, pady=5)
-        tk.Entry(frame, textvariable=self.disulfide_min,
-                 width=10).grid(row=1, column=1, padx=5)
-        tk.Label(frame, text="Disulfide Max (Å):").grid(
-            row=2, column=0, padx=5, pady=5)
-        tk.Entry(frame, textvariable=self.disulfide_max,
-                 width=10).grid(row=2, column=1, padx=5)
-        tk.Button(frame, text="Run Biopython Analysis",
-                  command=self.run_biopython_analysis).grid(
-            row=3, columnspan=2, pady=10)
+        input_frame = ctk.CTkFrame(self.biopython_tab, fg_color="transparent")
+        input_frame.pack(pady=10)
+
+        # Inputs
+        ctk.CTkLabel(input_frame, text="Neighbor Threshold (Å):").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+        ctk.CTkEntry(input_frame, textvariable=self.threshold, width=100).grid(row=0, column=1, padx=10, pady=5)
+
+        ctk.CTkLabel(input_frame, text="Disulfide Min (Å):").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+        ctk.CTkEntry(input_frame, textvariable=self.disulfide_min, width=100).grid(row=1, column=1, padx=10, pady=5)
+
+        ctk.CTkLabel(input_frame, text="Disulfide Max (Å):").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        ctk.CTkEntry(input_frame, textvariable=self.disulfide_max, width=100).grid(row=2, column=1, padx=10, pady=5)
+
+        ctk.CTkButton(input_frame, text="Run Biopython Analysis", command=self.run_biopython_analysis, font=ctk.CTkFont(weight="bold")).grid(row=3, columnspan=2, pady=15)
+
+        # Results area
+        self.biopython_results = ctk.CTkTextbox(self.biopython_tab, wrap='word')
+        self.biopython_results.pack(padx=20, pady=10, fill='both', expand=True)
 
     def _build_plip_tab(self) -> None:
-        frame_out = tk.Frame(self.plip_frame)
-        frame_out.pack(pady=5, fill=tk.X)
-        tk.Label(frame_out, text="Output Folder:").pack(side=tk.LEFT, padx=5)
-        tk.Entry(frame_out, textvariable=self.output_dir,
-                 width=50).pack(side=tk.LEFT, padx=5)
-        tk.Button(frame_out, text="Browse",
-                  command=self.browse_output_dir).pack(side=tk.LEFT, padx=5)
+        input_frame = ctk.CTkFrame(self.plip_tab, fg_color="transparent")
+        input_frame.pack(pady=10, fill='x')
 
-        frame_lig = tk.Frame(self.plip_frame)
-        frame_lig.pack(pady=5, fill=tk.X)
-        tk.Label(frame_lig, text="Ligand selection (PyMOL):").pack(
-            side=tk.LEFT, padx=5)
-        tk.Entry(frame_lig, textvariable=self.ligand_selection,
-                 width=30).pack(side=tk.LEFT, padx=5)
-        tk.Label(frame_lig,
-                 text='Examples: organic | resn NAG | hetatm and not polymer'
-                 ).pack(side=tk.LEFT, padx=5)
+        # Output folder
+        out_row = ctk.CTkFrame(input_frame, fg_color="transparent")
+        out_row.pack(fill='x', pady=5)
+        ctk.CTkLabel(out_row, text="Output Folder:").pack(side='left', padx=(0, 10))
+        ctk.CTkEntry(out_row, textvariable=self.output_dir, width=400, state='readonly').pack(side='left', padx=10)
+        ctk.CTkButton(out_row, text="Browse", command=self.browse_output_dir, width=100).pack(side='left')
 
-        frame_btn = tk.Frame(self.plip_frame)
-        frame_btn.pack(pady=10)
-        tk.Button(frame_btn, text="Run PLIP Analysis",
-                  command=self._on_run_plip).pack(pady=10)
+        # Ligand selection
+        lig_row = ctk.CTkFrame(input_frame, fg_color="transparent")
+        lig_row.pack(fill='x', pady=5)
+        ctk.CTkLabel(lig_row, text="Ligand selection (PyMOL):").pack(side='left', padx=(0, 10))
+        ctk.CTkEntry(lig_row, textvariable=self.ligand_selection, width=200).pack(side='left', padx=10)
+        ctk.CTkLabel(lig_row, text='Examples: organic | resn NAG | hetatm and not polymer', text_color="gray").pack(side='left', padx=10)
 
-    def _build_results_area(self) -> None:
-        self.biopython_results = scrolledtext.ScrolledText(
-            self.biopython_frame, wrap=tk.WORD, width=80, height=20)
-        self.biopython_results.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        # Interactive 3D Checkbox
+        chk_row = ctk.CTkFrame(input_frame, fg_color="transparent")
+        chk_row.pack(fill='x', pady=5)
+        ctk.CTkCheckBox(
+            chk_row, 
+            text="Analiz bitince 3D etkileşimi PyMOL'de interaktif olarak aç", 
+            variable=self.interactive_3d_var, 
+            font=ctk.CTkFont(weight="bold")
+        ).pack(side='left', padx=10)
 
-        self.plip_results_frame = tk.Frame(self.plip_frame)
-        self.plip_results_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
-        self.plip_results = scrolledtext.ScrolledText(
-            self.plip_results_frame, wrap=tk.WORD, width=80, height=10)
-        self.plip_results.pack(side=tk.TOP, fill=tk.X)
-        self.plip_image_label = tk.Label(self.plip_results_frame)
-        self.plip_image_label.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        # Run Button
+        btn_frame = ctk.CTkFrame(self.plip_tab, fg_color="transparent")
+        btn_frame.pack(pady=5)
+        ctk.CTkButton(btn_frame, text="Run PLIP Analysis", command=self._on_run_plip, font=ctk.CTkFont(weight="bold")).pack()
+
+        # Results area
+        results_frame = ctk.CTkFrame(self.plip_tab, fg_color="transparent")
+        results_frame.pack(padx=20, pady=10, fill='both', expand=True)
+        
+        self.plip_results = ctk.CTkTextbox(results_frame, wrap='word', height=200)
+        self.plip_results.pack(side='top', fill='x', pady=(0, 10))
+        
+        self.plip_image_label = ctk.CTkLabel(results_frame, text="")
+        self.plip_image_label.pack(side='bottom', fill='both', expand=True)
 
     # ------------------------------------------------------------------
     # File browser callbacks
@@ -486,51 +508,52 @@ class PDBAnalyzerApp:
             return
         try:
             structure = load_structure(pdb_file)
-            self.biopython_results.delete(1.0, tk.END)
+            self.biopython_results.delete("1.0", "end")
 
             warning, cys_list = list_all_cys(structure)
-            self.biopython_results.insert(tk.END, warning)
-            self.biopython_results.insert(tk.END, "All CYS residues:\n")
+            if warning:
+                self.biopython_results.insert("end", warning)
+            self.biopython_results.insert("end", "All CYS residues:\n")
             for model_id, chain_id, res_id in cys_list:
                 self.biopython_results.insert(
-                    tk.END, f"Model {model_id}: CYS {res_id} chain {chain_id}\n")
+                    "end", f"Model {model_id}: CYS {res_id} chain {chain_id}\n")
 
             try:
                 neigh_warning, neighbors = find_neighbors(
                     structure, self.threshold.get())
-                self.biopython_results.insert(tk.END, f"\n{neigh_warning}")
+                self.biopython_results.insert("end", f"\n{neigh_warning}")
                 self.biopython_results.insert(
-                    tk.END,
+                    "end",
                     f"CYS {DEFAULT_TARGET_RESNUM} (chain {DEFAULT_TARGET_CHAIN}) "
                     f"neighbors within {self.threshold.get()} Å (other chains):\n",
                 )
                 for resname, resnum, chain_id in neighbors:
                     self.biopython_results.insert(
-                        tk.END, f"{resname} {resnum} chain {chain_id}\n")
+                        "end", f"{resname} {resnum} chain {chain_id}\n")
             except ValueError as e:
                 self.biopython_results.insert(
-                    tk.END,
+                    "end",
                     f"\nError in neighbor search: {e} Skipping neighbor analysis.\n",
                 )
 
             try:
                 dist = calculate_disulfide_distance(structure)
                 self.biopython_results.insert(
-                    tk.END,
+                    "end",
                     f"\nCys166 (Ero1α, chain A) ↔ Cys56 (PDI, chain B) "
                     f"S–S distance: {dist:.2f} Å\n",
                 )
                 if self.disulfide_min.get() <= dist <= self.disulfide_max.get():
                     self.biopython_results.insert(
-                        tk.END, "This distance is suitable for a disulfide bond.\n")
+                        "end", "This distance is suitable for a disulfide bond.\n")
                 else:
                     self.biopython_results.insert(
-                        tk.END,
+                        "end",
                         "This distance is not suitable for a disulfide bond.\n",
                     )
             except ValueError as e:
                 self.biopython_results.insert(
-                    tk.END,
+                    "end",
                     f"\nError in distance calculation: {e} Skipping distance calculation.\n",
                 )
 
@@ -538,30 +561,34 @@ class PDBAnalyzerApp:
             messagebox.showerror("Error", str(e))
 
     def _on_run_plip(self) -> None:
-        """Button handler for PLIP analysis (renamed to avoid collision with
-        the module-level run_plip_analysis function)."""
         pdb_file = self.pdb_file.get()
         if not pdb_file:
             messagebox.showerror("Error", "Please select a PDB file.")
             return
+        
+        self.plip_results.delete("1.0", "end")
+        self.plip_results.insert("end", "Running PLIP analysis, please wait...\n")
+        self.root.update()
+
         try:
             output, image_file = run_plip_analysis(
                 pdb_file,
                 output_dir=self.output_dir.get(),
                 ligand_selection=self.ligand_selection.get(),
+                interactive_3d=self.interactive_3d_var.get(),
             )
-            self.plip_results.delete(1.0, tk.END)
-            self.plip_results.insert(tk.END, output)
+            self.plip_results.delete("1.0", "end")
+            self.plip_results.insert("end", output)
+            
+            # Update GUI with the PNG (even if interactive mode is ON, PyMOL still generated the PNG first)
             if image_file and os.path.exists(image_file):
-                img = Image.open(image_file)
-                img = img.resize(PLIP_IMAGE_PREVIEW_SIZE, Image.Resampling.LANCZOS)
-                photo = ImageTk.PhotoImage(img)
-                self.plip_image_label.config(image=photo)
-                self.plip_image_label.image = photo  # prevent GC
+                pil_image = Image.open(image_file)
+                ctk_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=PLIP_IMAGE_PREVIEW_SIZE)
+                self.plip_image_label.configure(image=ctk_image, text="")
             else:
-                self.plip_image_label.config(image='')
-                self.plip_image_label.image = None
+                self.plip_image_label.configure(image=None, text="Image not available")
         except Exception as e:
+            self.plip_results.delete("1.0", "end")
             messagebox.showerror("Error", f"PLIP analysis failed: {e}")
 
 
@@ -570,6 +597,8 @@ if __name__ == "__main__":
         level=logging.WARNING,
         format='%(asctime)s %(name)s %(levelname)s %(message)s',
     )
-    root = tk.Tk()
+    ctk.set_appearance_mode("System")
+    ctk.set_default_color_theme("blue")
+    root = ctk.CTk()
     PDBAnalyzerApp(root)
     root.mainloop()

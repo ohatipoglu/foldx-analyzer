@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="foldx_analysis" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="foldx_analysis" project-jdk-type="Python SDK" />
 </project>
