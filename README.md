@@ -22,30 +22,37 @@ Ayrıca PDB (Protein Data Bank) yapı analizi ve PLIP (Protein-Ligand Interactio
 - **Hata Yönetimi ve Loglama:** Beklenmeyen hatalar için kullanıcı dostu uyarılar ve detaylı loglama (`app.log`).
 - **Birim Testleri (Unit Tests):** Veri işleme mantığının doğruluğunu garanti eden test altyapısı.
 - **Biopython & PLIP Entegrasyonu:** CYS komşu araması, disülfür mesafesi hesaplama ve protein-ligand etkileşim analizleri.
+- **İnteraktif 3D PyMOL:** PLIP analiz sonuçlarını doğrudan PyMOL içinde hareketli ve 3 boyutlu olarak inceleme seçeneği.
 
 ### Kurulum
 
 **1. Gerekli Programların Yüklenmesi:**
 - Python ≥ 3.12 yüklü olmalıdır.
-- (İsteğe bağlı) PLIP görselleştirmeleri için PyMOL yüklü olmalı ve sistem `PATH`'ine eklenmiş olmalı veya `config.ini`'de yolu belirtilmelidir.
+- PLIP görselleştirmeleri için PyMOL yüklü olmalı ve sistem `PATH`'ine eklenmiş olmalı veya `config.ini`'de yolu belirtilmelidir.
 
 **2. Projenin İndirilmesi ve Bağımlılıkların Kurulumu:**
+
+Proje modern `pyproject.toml` yapısını kullanmaktadır. Bağımlılıkları kurmak için sanal ortamınızı oluşturduktan sonra şu komutları kullanabilirsiniz:
 
 ```bash
 git clone https://github.com/ohatipoglu/foldx-analyzer.git
 cd foldx-analyzer
 
-# Sanal ortam oluşturma ve aktifleştirme
-python -m venv venv
-# Windows için:
-venv\Scripts\activate
-# macOS / Linux için:
-# source venv/bin/activate
+# Seçenek 1: Standart pip ile kurulum (Önerilen)
+pip install .
 
-# Bağımlılıkları yükleme
-pip install -r requirements.txt
-# VEYA modern arayüz için (eğer requirements.txt'de yoksa):
-pip install customtkinter pandas numpy matplotlib biopython plip pytest
+# Seçenek 2: Testleri de çalıştıracaksanız
+pip install .[test]
+
+# Seçenek 3: Poetry kullanıyorsanız
+poetry install
+```
+
+**⚠️ ÖNEMLİ (Windows Kullanıcıları için PLIP Kurulumu):**
+Windows'ta PLIP kütüphanesi (ve bağımlı olduğu OpenBabel) standart `pip` ile derlenirken C++ hataları verebilir. Bu nedenle Conda kullanılması şiddetle tavsiye edilir. Eğer Conda kullanıyorsanız, projeyi kurmadan önce şu komutla PLIP'i kurun:
+
+```bash
+conda install -c conda-forge openbabel plip
 ```
 
 ### Yapılandırma (`config.ini`)
@@ -80,7 +87,7 @@ Uygulama iki pencere açacaktır:
 
 ### Testleri Çalıştırma
 
-Kodun doğruluğunu kontrol etmek için:
+Kodun doğruluğunu kontrol etmek için (pytest kurulu olmalıdır):
 ```bash
 python -m pytest tests/
 ```
@@ -106,30 +113,37 @@ It also features PDB (Protein Data Bank) structure analysis and PLIP (Protein-Li
 - **Error Handling & Logging:** User-friendly alerts for unexpected errors and detailed logging (`app.log`).
 - **Unit Tests:** Test infrastructure ensuring the correctness of the data processing logic.
 - **Biopython & PLIP Integration:** CYS neighbor search, disulfide distance calculation, and protein-ligand interaction analysis.
+- **Interactive 3D PyMOL:** Option to view PLIP interaction results in full interactive 3D directly within PyMOL.
 
 ### Installation
 
 **1. Prerequisites:**
 - Python ≥ 3.12 must be installed.
-- (Optional) PyMOL must be installed for PLIP visualizations and added to the system `PATH`, or its path must be specified in `config.ini`.
+- PyMOL must be installed for PLIP visualizations and added to the system `PATH`, or its path must be specified in `config.ini`.
 
 **2. Clone and Install Dependencies:**
+
+The project uses the modern `pyproject.toml` structure. After setting up your virtual environment, you can install the dependencies:
 
 ```bash
 git clone https://github.com/ohatipoglu/foldx-analyzer.git
 cd foldx-analyzer
 
-# Create and activate a virtual environment
-python -m venv venv
-# For Windows:
-venv\Scripts\activate
-# For macOS / Linux:
-# source venv/bin/activate
+# Option 1: Standard pip installation (Recommended)
+pip install .
 
-# Install dependencies
-pip install -r requirements.txt
-# OR for the modern UI (if not in requirements.txt):
-pip install customtkinter pandas numpy matplotlib biopython plip pytest
+# Option 2: Install with test dependencies
+pip install .[test]
+
+# Option 3: If you are using Poetry
+poetry install
+```
+
+**⚠️ IMPORTANT (PLIP Installation on Windows):**
+On Windows, installing the PLIP library (and its OpenBabel dependency) via standard `pip` often fails due to missing C++ compilation tools. Using Conda is highly recommended. If you use Conda, install PLIP with the following command before installing the project:
+
+```bash
+conda install -c conda-forge openbabel plip
 ```
 
 ### Configuration (`config.ini`)
@@ -164,7 +178,7 @@ The application will launch two windows:
 
 ### Running Tests
 
-To verify the correctness of the code:
+To verify the correctness of the code (requires pytest):
 ```bash
 python -m pytest tests/
 ```
