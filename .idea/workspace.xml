@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fb6a434f-1f08-49b0-ac5b-2fd5c9d9a55f" name="Changes" comment="...">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/foldx_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/foldx_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_foldx_core.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_foldx_core.py" afterDir="false" />
-    </list>
+    <list default="true" id="fb6a434f-1f08-49b0-ac5b-2fd5c9d9a55f" name="Changes" comment="..." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
