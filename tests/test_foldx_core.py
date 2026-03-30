@@ -2,8 +2,6 @@ import os
 import tempfile
 import unittest
 
-import pandas as pd
-
 from foldx_core import detect_command, CMD_POSITIONSCAN, CMD_STABILITY, find_header_and_read
 
 

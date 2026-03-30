@@ -1,0 +1,24 @@
+# Taranmasını istemediğiniz klasörler
+venv/
+.venv/
+env/
+node_modules/
+__pycache__/
+.git/
+.idea/
+.vscode/
+
+# Büyük veri veya çıktı dosyaları
+*.log
+*.csv
+*.json
+dist/
+build/
+out/
+
+# Gizli veya hassas dosyalar (isteğe bağlı)
+.env
+auth.key
+
+data/
+output/

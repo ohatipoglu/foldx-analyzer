@@ -12,7 +12,6 @@ responsible for:
 import logging
 import os
 import threading
-import tkinter as tk
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk

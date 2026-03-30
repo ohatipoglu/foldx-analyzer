@@ -75,11 +75,6 @@ INTERACTION_COLS = ['interaction', 'Interaction']
 FILE_ENCODINGS = ['utf-8', 'latin-1', 'cp1254']
 FXOUT_EXTENSION = '.fxout'
 
-# --- UI colours ---
-BG_COLOR = '#f4f6f9'
-STATUS_BG = '#ecf0f1'
-STATUS_FG = '#2c3e50'
-
 # --- Graph rendering ---
 FIGURE_SIZE = (10, 6)
 BUILDMODEL_MAX_N = 60
