@@ -1,8 +1,8 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 *.egg-info/
 dist/
@@ -13,19 +13,39 @@ build/
 venv/
 .venv/
 env/
+.env/
 
-# IDE
+# IDE and Editor
 .idea/
 .vscode/
 *.iml
+.claude/
 
-# Stale / scratch files
+# Project specific scratch and backup files
 foldx_analysis_backup.py
 main.py
+new2.sh
 
-# Output (generated files, not source)
+# Logs
+*.log
+app.log
+
+# Configuration files (user specific)
+config.ini
+
+# Output (generated files and charts)
 output/
 
-# OS
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
