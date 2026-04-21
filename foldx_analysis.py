@@ -36,10 +36,11 @@ logger = logging.getLogger(__name__)
 
 
 class FoldXAnalyzerGUI:
-    def __init__(self, root: ctk.CTkToplevel) -> None:
+    def __init__(self, root: ctk.CTkFrame | ctk.CTkToplevel) -> None:
         self.root = root
-        # Base settings
-        self.root.geometry("1200x900")
+        # Base settings - only apply if root is a window
+        if isinstance(self.root, (ctk.CTk, ctk.CTkToplevel)):
+            self.root.geometry("1200x900")
         
         self._build_ui()
 
@@ -70,7 +71,7 @@ class FoldXAnalyzerGUI:
         ctk.CTkLabel(top_frame, text="fxout Dosyası/Klasörü:", font=ctk.CTkFont(weight="bold")).pack(anchor='w', padx=10, pady=(10, 0))
         file_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         file_row.pack(fill='x', pady=5, padx=10)
-        self.file_path = ctk.StringVar()
+        self.file_path = ctk.StringVar(value=os.path.join(os.getcwd(), "data", "fxout"))
         file_entry = ctk.CTkEntry(file_row, textvariable=self.file_path, width=500, state='readonly')
         file_entry.pack(side='left', padx=(0, 10))
         ctk.CTkButton(file_row, text="Tek Dosya", command=self.browse_file, width=100).pack(side='left', padx=5)
@@ -96,7 +97,7 @@ class FoldXAnalyzerGUI:
         out_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         out_row.pack(fill='x', pady=5, padx=10)
         ctk.CTkLabel(out_row, text="Çıktı Klasörü:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=(0, 10))
-        self.out_dir = ctk.StringVar(value=os.path.join(os.getcwd(), "output"))
+        self.out_dir = ctk.StringVar(value=os.path.join(os.getcwd(), "data", "fxout", "output"))
         ctk.CTkEntry(out_row, textvariable=self.out_dir, width=400).pack(side='left', padx=(0, 10))
         ctk.CTkButton(out_row, text="Değiştir", command=self.browse_output, width=100).pack(side='left')
 
@@ -123,6 +124,13 @@ class FoldXAnalyzerGUI:
     # UI helpers
     # ------------------------------------------------------------------
 
+    def _update_output_path(self, input_path: str) -> None:
+        if os.path.isfile(input_path):
+            new_out = os.path.join(os.path.dirname(input_path), "output")
+        else:
+            new_out = os.path.join(input_path, "output")
+        self.out_dir.set(new_out)
+
     def _toggle_manual(self) -> None:
         state = "normal" if self.mode_var.get() == "manual" else "disabled"
         self.manual_combo.configure(state=state)
@@ -132,11 +140,13 @@ class FoldXAnalyzerGUI:
             filetypes=[("FoldX Output", "*.fxout"), ("All", "*.*")])
         if path:
             self.file_path.set(path)
+            self._update_output_path(path)
 
     def browse_folder(self) -> None:
         path = filedialog.askdirectory()
         if path:
             self.file_path.set(path)
+            self._update_output_path(path)
 
     def browse_output(self) -> None:
         path = filedialog.askdirectory()

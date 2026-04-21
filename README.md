@@ -1,4 +1,4 @@
-# FoldX Analyzer
+# Bioinformatics Analyzer Suite (FoldX & PLIP)
 
 **Türkçe** | [English](#english)
 
@@ -6,90 +6,66 @@
 
 ## Türkçe
 
-FoldX çıktı dosyalarını (`.fxout`) otomatik olarak analiz eden, grafiklerini modern bir arayüz (CustomTkinter) içinde gösteren ve PNG + CSV olarak kaydeden masaüstü uygulaması. 
+**Bioinformatics Analyzer Suite**, protein yapılarını ve enerjilerini analiz etmek için geliştirilmiş kapsamlı bir masaüstü uygulamasıdır. FoldX çıktılarını otomatik olarak işler, protein-ligand etkileşimlerini (PLIP) analiz eder ve yapısal biyoinformatik hesaplamaları yapar. Modern bir arayüz (CustomTkinter) ile donatılmış olan uygulama, hem bireysel hem de toplu işlemleri destekler.
 
-Ayrıca PDB (Protein Data Bank) yapı analizi ve PLIP (Protein-Ligand Interaction Profiler) entegrasyonu ile protein-ligand etkileşimlerini PyMOL üzerinde görselleştirme yeteneklerine sahiptir.
+### Temel Özellikler
 
-### Özellikler
+#### 1. FoldX Analizörü
+- **Otomatik Komut Algılama:** 7 farklı FoldX komutunun (`PositionScan`, `RepairPDB`, `BuildModel`, `AnalyseComplex`, `Stability`, `PSSM`, `RnaScan`) çıktılarını otomatik olarak tanır.
+- **Toplu İşlem:** Bir klasör dolusu `.fxout` dosyasını tek seferde analiz eder ve sonuçları sekmeli görünümde sunar.
+- **Görselleştirme ve Çıktı:** Analiz sonuçlarını grafiklere döker, yüksek çözünürlüklü PNG ve CSV formatında `output` klasörüne kaydeder.
 
-- **Modern Arayüz:** CustomTkinter ile oluşturulmuş, kullanıcı dostu ve şık bir görünüm.
-- **7 FoldX Komutunu Algılama:** PositionScan, RepairPDB, BuildModel, AnalyseComplex vb. komutların çıktılarını otomatik tanır veya manuel seçime izin verir.
-- **Toplu İşlem (Batch Processing):** Bir klasör seçerek yüzlerce `.fxout` dosyasını tek seferde analiz etme imkanı.
-- **Özelleştirilebilir Yapılandırma:** `config.ini` dosyası üzerinden PyMOL yolu, grafik çözünürlükleri (DPI) ve enerji eşik değerlerini kolayca ayarlama.
-- **Sekmeli Görünüm:** Her bir analiz sonucu ayrı bir sekmede, detaylı grafiklerle gösterilir.
-- **Otomatik Çıktı Kaydı:** Yüksek çözünürlüklü (300 DPI) PNG grafikler ve işlenmiş CSV verileri `output` klasörüne otomatik kaydedilir.
-- **Arka Planda Çalışma:** Uzun süren analizler arka planda yürütülür, böylece arayüz donmaz.
-- **Hata Yönetimi ve Loglama:** Beklenmeyen hatalar için kullanıcı dostu uyarılar ve detaylı loglama (`app.log`).
-- **Birim Testleri (Unit Tests):** Veri işleme mantığının doğruluğunu garanti eden test altyapısı.
-- **Biopython & PLIP Entegrasyonu:** CYS komşu araması, disülfür mesafesi hesaplama ve protein-ligand etkileşim analizleri.
-- **İnteraktif 3D PyMOL:** PLIP analiz sonuçlarını doğrudan PyMOL içinde hareketli ve 3 boyutlu olarak inceleme seçeneği.
+#### 2. PDB & Yapısal Analiz (Biopython)
+- **CYS Arama:** PDB dosyasındaki tüm Sistein (CYS) kalıntılarını listeler.
+- **Mesafe Hesaplama:** Belirlenen kalıntılar arasındaki (örneğin disülfür köprüleri) mesafeyi otomatik hesaplar.
+- **Komşu Analizi:** Hedef kalıntıların çevresindeki etkileşim alanlarını belirler.
+
+#### 3. PLIP (Protein-Ligand Interaction Profiler) Entegrasyonu
+- **Canlı Analiz (3D):** Bir PDB dosyasını PLIP ile analiz eder ve sonuçları doğrudan interaktif **3D PyMOL** üzerinde görselleştirir.
+- **Batch TXT İşleme:** PLIP tarafından üretilen metin raporlarını (`.txt`) toplu olarak okur ve analiz eder.
+- **Word Raporu Dışa Aktarma:** Farklı mutasyonların veya dosyaların etkileşim sayılarını (Hidrojen bağı, Hidrofobik etkileşim, Tuz köprüsü vb.) karşılaştıran profesyonel bir **Microsoft Word (.docx)** raporu oluşturur.
+
+#### 4. Kullanıcı Deneyimi ve Altyapı
+- **Modern Arayüz:** CustomTkinter ile yan menü (sidebar) tabanlı, şık ve hızlı bir kullanım.
+- **Yapılandırma (config.ini):** PyMOL yolu, grafik çözünürlükleri ve enerji eşik değerleri gibi ayarları kalıcı olarak kaydeder.
+- **Arka Plan İşlemleri:** Uzun süren analizler sırasında arayüzün donmasını engelleyen multi-threading yapısı.
+- **Detaylı Loglama:** Hata takibi için `app.log` dosyası.
 
 ### Kurulum
 
-**1. Gerekli Programların Yüklenmesi:**
-- Python ≥ 3.12 yüklü olmalıdır.
-- PLIP görselleştirmeleri için PyMOL yüklü olmalı ve sistem `PATH`'ine eklenmiş olmalı veya `config.ini`'de yolu belirtilmelidir.
+**1. Gerekli Programlar:**
+- Python ≥ 3.12
+- **PyMOL:** Görselleştirmeler için gereklidir. Sistem `PATH`'ine eklenmiş olmalı veya `config.ini` dosyasında yolu belirtilmelidir.
 
-**2. Projenin İndirilmesi ve Bağımlılıkların Kurulumu:**
-
-Proje modern `pyproject.toml` yapısını kullanmaktadır. Bağımlılıkları kurmak için sanal ortamınızı oluşturduktan sonra şu komutları kullanabilirsiniz:
+**2. Bağımlılıkların Kurulumu:**
 
 ```bash
 git clone https://github.com/ohatipoglu/foldx-analyzer.git
 cd foldx-analyzer
 
-# Seçenek 1: Standart pip ile kurulum (Önerilen)
+# Sanal ortam oluşturup aktif ettikten sonra:
 pip install .
-
-# Seçenek 2: Testleri de çalıştıracaksanız
-pip install .[test]
-
-# Seçenek 3: Poetry kullanıyorsanız
-poetry install
 ```
 
-**⚠️ ÖNEMLİ (Windows Kullanıcıları için PLIP Kurulumu):**
-Windows'ta PLIP kütüphanesi (ve bağımlı olduğu OpenBabel) standart `pip` ile derlenirken C++ hataları verebilir. Bu nedenle Conda kullanılması şiddetle tavsiye edilir. Eğer Conda kullanıyorsanız, projeyi kurmadan önce şu komutla PLIP'i kurun:
-
+**⚠️ ÖNEMLİ (Windows - PLIP Kurulumu):**
+Windows üzerinde PLIP ve OpenBabel kurulumu `pip` ile hata verebilir. Conda kullanmanız önerilir:
 ```bash
 conda install -c conda-forge openbabel plip
 ```
 
-### Yapılandırma (`config.ini`)
-
-İlk çalıştırmada otomatik olarak bir `config.ini` dosyası oluşturulacaktır. Bu dosyayı düzenleyerek uygulama ayarlarını kendinize göre özelleştirebilirsiniz:
-
-```ini
-[Settings]
-pymol_executable_path = pymol  # Veya C:/Program Files/PyMOL/PyMOL.exe
-
-[Graph]
-figure_dpi = 100
-save_dpi = 300
-stabilizing_threshold = -0.5
-destabilizing_threshold = 0.5
-
-[PDB]
-neighbor_threshold = 6.0
-disulfide_min_dist = 2.0
-disulfide_max_dist = 2.2
-```
-
 ### Kullanım
 
+Uygulamayı başlatmak için:
 ```bash
 python combined_gui.py
 ```
 
-Uygulama iki pencere açacaktır:
-1. **FoldX Analyzer:** Klasör/dosya seçimi ve grafik analizleri için ana pencere.
-2. **PDB / PLIP Analyzer:** PDB analizleri ve PyMOL entegrasyonu için yardımcı pencere.
+### Yapılandırma (`config.ini`)
 
-### Testleri Çalıştırma
-
-Kodun doğruluğunu kontrol etmek için (pytest kurulu olmalıdır):
-```bash
-python -m pytest tests/
+Uygulama ilk açılışta varsayılan ayarlarla bir `config.ini` oluşturur. PyMOL yolunu buradan güncelleyebilirsiniz:
+```ini
+[Settings]
+pymol_executable_path = C:/Program Files/PyMOL/PyMOL.exe
 ```
 
 ---
@@ -97,88 +73,69 @@ python -m pytest tests/
 ## English
 <a name="english"></a>
 
-A desktop application that automatically analyzes FoldX output files (`.fxout`), displays charts within a modern interface (CustomTkinter), and saves them as PNG + CSV.
+**Bioinformatics Analyzer Suite** is a comprehensive desktop application developed for analyzing protein structures and energies. It automatically processes FoldX outputs, analyzes protein-ligand interactions (PLIP), and performs structural bioinformatics calculations. Equipped with a modern interface (CustomTkinter), the application supports both individual and batch processing.
 
-It also features PDB (Protein Data Bank) structure analysis and PLIP (Protein-Ligand Interaction Profiler) integration to visualize protein-ligand interactions in PyMOL.
+### Key Features
 
-### Features
+#### 1. FoldX Analyzer
+- **Auto Command Detection:** Automatically recognizes outputs from 7 different FoldX commands (`PositionScan`, `RepairPDB`, `BuildModel`, `AnalyseComplex`, `Stability`, `PSSM`, `RnaScan`).
+- **Batch Processing:** Analyzes an entire folder of `.fxout` files at once and presents results in a tabbed view.
+- **Visualization & Export:** Converts analysis results into charts and saves them in high-resolution PNG and CSV formats to the `output` folder.
 
-- **Modern UI:** User-friendly and sleek interface built with CustomTkinter.
-- **Auto-detects 7 FoldX Commands:** Automatically recognizes outputs from PositionScan, RepairPDB, BuildModel, AnalyseComplex, etc., or allows manual selection.
-- **Batch Processing:** Analyze hundreds of `.fxout` files at once by selecting a folder.
-- **Customizable Configuration:** Easily adjust PyMOL paths, graph resolutions (DPI), and energy thresholds via the `config.ini` file.
-- **Tabbed View:** Each analysis result is displayed in a separate tab with detailed charts.
-- **Automatic Output Saving:** High-resolution (300 DPI) PNG charts and processed CSV data are automatically saved to the `output` folder.
-- **Background Processing:** Long-running analyses are executed in the background, keeping the UI responsive.
-- **Error Handling & Logging:** User-friendly alerts for unexpected errors and detailed logging (`app.log`).
-- **Unit Tests:** Test infrastructure ensuring the correctness of the data processing logic.
-- **Biopython & PLIP Integration:** CYS neighbor search, disulfide distance calculation, and protein-ligand interaction analysis.
-- **Interactive 3D PyMOL:** Option to view PLIP interaction results in full interactive 3D directly within PyMOL.
+#### 2. PDB & Structural Analysis (Biopython)
+- **CYS Search:** Lists all Cysteine (CYS) residues in the PDB file.
+- **Distance Calculation:** Automatically calculates distances between specified residues (e.g., disulfide bridges).
+- **Neighbor Analysis:** Identifies interaction zones around target residues.
+
+#### 3. PLIP (Protein-Ligand Interaction Profiler) Integration
+- **Live Analysis (3D):** Analyzes a PDB file with PLIP and visualizes the results directly in interactive **3D PyMOL**.
+- **Batch TXT Processing:** Batch reads and analyzes text reports (`.txt`) generated by PLIP.
+- **Word Report Export:** Generates a professional **Microsoft Word (.docx)** report comparing interaction counts (Hydrogen bonds, Hydrophobic interactions, Salt bridges, etc.) across different mutations or files.
+
+#### 4. User Experience & Infrastructure
+- **Modern UI:** A sleek and fast sidebar-based interface built with CustomTkinter.
+- **Configuration (config.ini):** Permanently saves settings such as PyMOL path, graph resolutions, and energy thresholds.
+- **Background Processing:** Multi-threading structure prevents UI freezing during long-running analyses.
+- **Detailed Logging:** `app.log` file for error tracking.
 
 ### Installation
 
 **1. Prerequisites:**
-- Python ≥ 3.12 must be installed.
-- PyMOL must be installed for PLIP visualizations and added to the system `PATH`, or its path must be specified in `config.ini`.
+- Python ≥ 3.12
+- **PyMOL:** Required for visualizations. Must be added to system `PATH` or specified in `config.ini`.
 
-**2. Clone and Install Dependencies:**
-
-The project uses the modern `pyproject.toml` structure. After setting up your virtual environment, you can install the dependencies:
+**2. Install Dependencies:**
 
 ```bash
 git clone https://github.com/ohatipoglu/foldx-analyzer.git
 cd foldx-analyzer
 
-# Option 1: Standard pip installation (Recommended)
+# After creating and activating a virtual environment:
 pip install .
-
-# Option 2: Install with test dependencies
-pip install .[test]
-
-# Option 3: If you are using Poetry
-poetry install
 ```
 
-**⚠️ IMPORTANT (PLIP Installation on Windows):**
-On Windows, installing the PLIP library (and its OpenBabel dependency) via standard `pip` often fails due to missing C++ compilation tools. Using Conda is highly recommended. If you use Conda, install PLIP with the following command before installing the project:
-
+**⚠️ IMPORTANT (Windows - PLIP Installation):**
+Installing PLIP and OpenBabel on Windows via `pip` may fail. Conda is recommended:
 ```bash
 conda install -c conda-forge openbabel plip
 ```
 
-### Configuration (`config.ini`)
-
-A `config.ini` file will be created automatically on the first run. You can customize the application settings by editing this file:
-
-```ini
-[Settings]
-pymol_executable_path = pymol  # Or C:/Program Files/PyMOL/PyMOL.exe
-
-[Graph]
-figure_dpi = 100
-save_dpi = 300
-stabilizing_threshold = -0.5
-destabilizing_threshold = 0.5
-
-[PDB]
-neighbor_threshold = 6.0
-disulfide_min_dist = 2.0
-disulfide_max_dist = 2.2
-```
-
 ### Usage
 
+To launch the application:
 ```bash
 python combined_gui.py
 ```
 
-The application will launch two windows:
-1. **FoldX Analyzer:** Main window for folder/file selection and chart analysis.
-2. **PDB / PLIP Analyzer:** Auxiliary window for PDB analysis and PyMOL integration.
+### Configuration (`config.ini`)
+
+The application creates a `config.ini` with default settings on the first run. You can update the PyMOL path here:
+```ini
+[Settings]
+pymol_executable_path = C:/Program Files/PyMOL/PyMOL.exe
+```
 
 ### Running Tests
-
-To verify the correctness of the code (requires pytest):
 ```bash
 python -m pytest tests/
 ```
