@@ -53,7 +53,8 @@ def parse_plip_txt_file(filepath, target_residues=None, target_chain='A'):
                                 'lig_res': int(cells[ligres_idx]), 'lig_type': cells[ligtype_idx], 'lig_chain': cells[ligchain_idx],
                                 'distance': cells[dist_idx]
                             })
-                    except: continue
+                    except (ValueError, IndexError, KeyError):
+                        continue
     return results
 
 def get_mutation_name(filename):

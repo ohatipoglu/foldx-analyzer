@@ -1,6 +1,8 @@
 import configparser
+import logging
 import os
 import sys
+import warnings
 
 """Shared constants for the FoldX Analyzer application.
 Loads user-configurable settings from config.ini if available.
@@ -41,6 +43,21 @@ ENERGY_THRESHOLD_RED = config.getfloat('Graph', 'destabilizing_threshold', fallb
 DEFAULT_NEIGHBOR_THRESHOLD = config.getfloat('PDB', 'neighbor_threshold', fallback=6.0)
 DEFAULT_DISULFIDE_MIN = config.getfloat('PDB', 'disulfide_min_dist', fallback=2.0)
 DEFAULT_DISULFIDE_MAX = config.getfloat('PDB', 'disulfide_max_dist', fallback=2.2)
+
+# --- Config validation ---
+if not (10 <= FIGURE_DPI <= 600):
+    warnings.warn(f"config.ini: figure_dpi={FIGURE_DPI} geçersiz (10-600), varsayılan 100 kullanılıyor.")
+    FIGURE_DPI = 100
+if not (72 <= SAVE_DPI <= 1200):
+    warnings.warn(f"config.ini: save_dpi={SAVE_DPI} geçersiz (72-1200), varsayılan 300 kullanılıyor.")
+    SAVE_DPI = 300
+if not (0.1 <= DEFAULT_NEIGHBOR_THRESHOLD <= 50.0):
+    warnings.warn(f"config.ini: neighbor_threshold={DEFAULT_NEIGHBOR_THRESHOLD} geçersiz (0.1-50.0), varsayılan 6.0 kullanılıyor.")
+    DEFAULT_NEIGHBOR_THRESHOLD = 6.0
+if not (1.5 <= DEFAULT_DISULFIDE_MIN < DEFAULT_DISULFIDE_MAX <= 3.0):
+    warnings.warn(f"config.ini: disulfide mesafeleri geçersiz, varsayılanlar kullanılıyor (2.0/2.2).")
+    DEFAULT_DISULFIDE_MIN = 2.0
+    DEFAULT_DISULFIDE_MAX = 2.2
 
 
 # --- FoldX command names (Not configurable by user) ---

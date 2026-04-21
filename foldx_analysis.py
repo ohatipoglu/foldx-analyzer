@@ -48,6 +48,7 @@ class FoldXAnalyzerGUI:
         # so they can be properly destroyed on re-run.
         self.tabs: dict[str, FigureCanvasTkAgg] = {}
         self._tab_frames: list[ctk.CTkFrame] = []
+        self._MAX_TABS = 20
 
         self._renderers = {
             "PositionScan":   self._render_positionscan,
@@ -329,7 +330,7 @@ class FoldXAnalyzerGUI:
         graph_title: str,
     ) -> None:
         total = len(files)
-        error_files: list[str] = []
+        error_files: list[tuple[str, str]] = []
 
         for idx, file in enumerate(files):
             basename = os.path.basename(file)
@@ -366,8 +367,8 @@ class FoldXAnalyzerGUI:
 
             except Exception as e:
                 logger.exception("Error processing %s", file)
-                error_files.append(basename)
-                self.root.after(0, self._set_status, f"Hata: {basename}")
+                error_files.append((basename, str(e)))
+                self.root.after(0, self._set_status, f"Hata: {basename} — {e}")
             finally:
                 progress_val = (idx + 1) / total
                 self.root.after(0, self._update_progress, progress_val)
@@ -388,6 +389,16 @@ class FoldXAnalyzerGUI:
         tab_name = basename[:20]
         if tab_name in self.tabs:
             tab_name += f"_{idx}"
+
+        # Remove oldest tab if limit reached to prevent memory growth
+        if len(self.tabs) >= self._MAX_TABS:
+            oldest = next(iter(self.tabs))
+            try:
+                plt.close(self.tabs[oldest].figure)
+                self.tab_control.delete(oldest)
+            except Exception:
+                pass
+            del self.tabs[oldest]
 
         try:
              tab_frame = self.tab_control.add(tab_name)
@@ -435,16 +446,16 @@ class FoldXAnalyzerGUI:
         self,
         total: int,
         output_dir: str,
-        error_files: list[str],
+        error_files: list[tuple[str, str]],
     ) -> None:
         self.analyze_btn.configure(state='normal')
         if error_files:
-            failed = "\n".join(error_files)
+            lines = [f"• {name}: {msg}" for name, msg in error_files]
             self._set_status(
                 f"Tamamlandı ({total} dosya). {len(error_files)} hata var.")
             messagebox.showerror(
                 "Analiz Hataları",
-                f"Şu dosyalar işlenemedi:\n{failed}",
+                f"Şu dosyalar işlenemedi:\n" + "\n".join(lines),
             )
         else:
             self._set_status(f"Toplam {total} dosya analiz edildi!")

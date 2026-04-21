@@ -191,7 +191,8 @@ class CombinedApp(ctk.CTk):
             try:
                 v = int(r.strip()); b_res.append(v)
                 t_set.add(v); t_set.add(v-1); t_set.add(v+1)
-            except: continue
+            except ValueError:
+                continue
         
         self.batch_data = {}; self.batch_disp.delete("1.0", "end")
         self.batch_disp.insert("end", f"{'File':<25} | H-Phobic | H-Bond | Salt | Water | TOTAL\n" + "-"*80 + "\n")

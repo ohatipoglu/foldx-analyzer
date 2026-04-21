@@ -20,7 +20,10 @@ dependencies = [
     "numpy",
     "matplotlib",
     "customtkinter",
-    "biopython"
+    "biopython",
+    "python-docx>=0.8.11",
+    # plip must be installed separately via conda:
+    # conda install -c conda-forge openbabel plip
 ]
 
 [project.optional-dependencies]
