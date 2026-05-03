@@ -5,6 +5,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from collections import defaultdict
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 from Bio.PDB import PDBParser, NeighborSearch
@@ -26,14 +27,18 @@ logger = logging.getLogger(__name__)
 # PLIP TXT Report Parsing (For Batch Processing)
 # ---------------------------------------------------------------------------
 
-def parse_plip_txt_file(filepath, target_residues=None, target_chain='A'):
+def parse_plip_txt_file(
+    filepath: str,
+    target_residues: Optional[Set[int]] = None,
+    target_chain: str = 'A'
+) -> Dict[str, List[Dict[str, Any]]]:
     """Parse a PLIP TXT report file and extract interaction data.
-    
+
     Args:
         filepath: Path to the PLIP TXT report file
         target_residues: Optional set of target residue numbers to filter
         target_chain: Target chain identifier (default: 'A')
-    
+
     Returns:
         Dictionary with interaction types as keys and lists of interaction details as values
     """
@@ -75,15 +80,24 @@ def parse_plip_txt_file(filepath, target_residues=None, target_chain='A'):
                         continue
     return results
 
-def get_mutation_name(filename):
+def get_mutation_name(filename: str) -> str:
+    """Extract mutation name from a filename.
+    
+    Args:
+        filename: Filename with extension
+        
+    Returns:
+        Mutation name with prefixes/suffixes removed
+    """
     name = os.path.splitext(filename)[0]
     return name.replace('target_pa_', '').replace('_model.000.00', '')
 
-# ---------------------------------------------------------------------------
-# Word Reports
-# ---------------------------------------------------------------------------
 
-def create_plip_comparison_word_report(all_results, output_docx, base_residues=None):
+def create_plip_comparison_word_report(
+    all_results: Dict[str, Dict[str, List[Any]]],
+    output_docx: str,
+    base_residues: Optional[List[int]] = None
+) -> bool:
     """Create a Word document comparing PLIP interaction counts across mutations.
     
     Args:
@@ -131,12 +145,12 @@ def create_plip_comparison_word_report(all_results, output_docx, base_residues=N
 # Live PDB Analysis (Biopython & PLIP)
 # ---------------------------------------------------------------------------
 
-def load_structure(pdb_file):
+def load_structure(pdb_file: str) -> Any:
     """Load a PDB structure using Biopython.
-    
+
     Args:
         pdb_file: Path to the PDB file
-        
+
     Returns:
         Biopython Structure object
     """
@@ -144,16 +158,16 @@ def load_structure(pdb_file):
     return parser.get_structure("complex", pdb_file)
 
 
-def list_all_cys(structure):
+def list_all_cys(structure: Any) -> List[Tuple[Any, str, int]]:
     """List all cysteine residues in the structure.
-    
+
     Args:
         structure: Biopython Structure object
-        
+
     Returns:
         List of tuples (model_id, chain_id, residue_number) for each CYS residue
     """
-    res = []
+    res: List[Tuple[Any, str, int]] = []
     for m in structure:
         for c in m:
             for r in c:
@@ -161,15 +175,21 @@ def list_all_cys(structure):
                     res.append((m.id, c.id, r.get_id()[1]))
     return res
 
-def find_neighbors(structure, threshold, target_resnum, target_chain):
+
+def find_neighbors(
+    structure: Any,
+    threshold: float,
+    target_resnum: int,
+    target_chain: str
+) -> List[Tuple[str, int, str]]:
     """Find neighboring residues near a target cysteine residue.
-    
+
     Args:
         structure: Biopython Structure object
         threshold: Distance threshold in Angstroms
         target_resnum: Target residue number
         target_chain: Target chain identifier
-        
+
     Returns:
         Sorted list of tuples (residue_name, residue_number, chain_id) for neighbors
     """
@@ -194,16 +214,22 @@ def find_neighbors(structure, threshold, target_resnum, target_chain):
     return sorted(found)
 
 
-def calculate_disulfide_distance(structure, c1_ch, c1_r, c2_ch, c2_r):
+def calculate_disulfide_distance(
+    structure: Any,
+    c1_ch: str,
+    c1_r: int,
+    c2_ch: str,
+    c2_r: int
+) -> Optional[float]:
     """Calculate the distance between two cysteine SG atoms (disulfide bridge).
-    
+
     Args:
         structure: Biopython Structure object
         c1_ch: First cysteine chain identifier
         c1_r: First cysteine residue number
         c2_ch: Second cysteine chain identifier
         c2_r: Second cysteine residue number
-        
+
     Returns:
         Distance in Angstroms, or None if SG atoms not found
     """
@@ -224,15 +250,20 @@ def calculate_disulfide_distance(structure, c1_ch, c1_r, c2_ch, c2_r):
     )
     return None
 
-def run_live_plip(pdb_file, out_dir, ligand_sel="organic", interactive=False):
+def run_live_plip(
+    pdb_file: str,
+    out_dir: str,
+    ligand_sel: str = "organic",
+    interactive: bool = False
+) -> Tuple[str, Optional[str]]:
     """Run PLIP analysis on a PDB file and generate visualization.
-    
+
     Args:
         pdb_file: Path to the PDB file
         out_dir: Output directory for results
         ligand_sel: Ligand selection string for PyMOL
         interactive: If True, keep PyMOL open after analysis
-        
+
     Returns:
         Tuple of (analysis_text, image_path) or (error_message, None)
     """
@@ -272,9 +303,17 @@ def run_live_plip(pdb_file, out_dir, ligand_sel="organic", interactive=False):
         logger.exception("Unexpected error during PLIP analysis")
         return f"Error: {e}", None
 
-def write_pymol_script(pdb, img, lig_sel, hotspots, width=PYMOL_WIDTH, height=PYMOL_HEIGHT, interactive=False):
+def write_pymol_script(
+    pdb: str,
+    img: str,
+    lig_sel: str,
+    hotspots: Set[Tuple[str, int]],
+    width: int = PYMOL_WIDTH,
+    height: int = PYMOL_HEIGHT,
+    interactive: bool = False
+) -> str:
     """Generate a PyMOL script for visualizing PLIP interactions.
-    
+
     Args:
         pdb: Path to the PDB file
         img: Output image path
@@ -283,7 +322,7 @@ def write_pymol_script(pdb, img, lig_sel, hotspots, width=PYMOL_WIDTH, height=PY
         width: Image width in pixels
         height: Image height in pixels
         interactive: If True, don't quit PyMOL after rendering
-        
+
     Returns:
         Path to the generated .pml script file
     """
@@ -328,9 +367,9 @@ def write_pymol_script(pdb, img, lig_sel, hotspots, width=PYMOL_WIDTH, height=PY
     return s_path
 
 
-def _resolve_pymol_executable():
+def _resolve_pymol_executable() -> str:
     """Resolve the PyMOL executable path from config or system PATH.
-    
+
     Returns:
         PyMOL executable path or command
     """

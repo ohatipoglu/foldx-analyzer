@@ -2,6 +2,8 @@
 
 **Türkçe** | [English](#english)
 
+> **📢 Latest:** Version 0.2.0 includes comprehensive code quality improvements, full English language support, type hints, and a detailed [macOS Setup Guide](MACOS_SETUP_GUIDE.md).
+
 ---
 
 ## Türkçe
@@ -30,6 +32,8 @@
 - **Yapılandırma (config.ini):** PyMOL yolu, grafik çözünürlükleri ve enerji eşik değerleri gibi ayarları kalıcı olarak kaydeder.
 - **Arka Plan İşlemleri:** Uzun süren analizler sırasında arayüzün donmasını engelleyen multi-threading yapısı.
 - **Detaylı Loglama:** Hata takibi için `app.log` dosyası.
+- **Tip Güvenliği:** Tüm fonksiyonlar type hints ile dokümante edilmiştir.
+- **Test Coverage:** 20+ unit test ile kritik fonksiyonlar güvence altındadır.
 
 ### Kurulum
 
@@ -51,6 +55,20 @@ pip install .
 Windows üzerinde PLIP ve OpenBabel kurulumu `pip` ile hata verebilir. Conda kullanmanız önerilir:
 ```bash
 conda install -c conda-forge openbabel plip
+```
+
+### 🍎 macOS Kullanıcıları
+
+macOS üzerinde kurulum için detaylı talimatlar: **[MACOS_SETUP_GUIDE.md](MACOS_SETUP_GUIDE.md)**
+
+**Hızlı Başlangıç (Anaconda ile):**
+```bash
+conda create -n foldx-env python=3.12 -y
+conda activate foldx-env
+conda install -c conda-forge pandas numpy matplotlib biopython openbabel plip pymol pytest -y
+pip install customtkinter python-docx
+pip install -e .
+python combined_gui.py
 ```
 
 ### Kullanım
@@ -97,6 +115,8 @@ pymol_executable_path = C:/Program Files/PyMOL/PyMOL.exe
 - **Configuration (config.ini):** Permanently saves settings such as PyMOL path, graph resolutions, and energy thresholds.
 - **Background Processing:** Multi-threading structure prevents UI freezing during long-running analyses.
 - **Detailed Logging:** `app.log` file for error tracking.
+- **Type Safety:** All functions are documented with type hints for better IDE support.
+- **Test Coverage:** 20+ unit tests cover critical functionality.
 
 ### Installation
 
@@ -120,6 +140,20 @@ Installing PLIP and OpenBabel on Windows via `pip` may fail. Conda is recommende
 conda install -c conda-forge openbabel plip
 ```
 
+### 🍎 macOS Users
+
+For detailed macOS installation instructions: **[MACOS_SETUP_GUIDE.md](MACOS_SETUP_GUIDE.md)**
+
+**Quick Start (with Anaconda):**
+```bash
+conda create -n foldx-env python=3.12 -y
+conda activate foldx-env
+conda install -c conda-forge pandas numpy matplotlib biopython openbabel plip pymol pytest -y
+pip install customtkinter python-docx
+pip install -e .
+python combined_gui.py
+```
+
 ### Usage
 
 To launch the application:
@@ -136,6 +170,38 @@ pymol_executable_path = C:/Program Files/PyMOL/PyMOL.exe
 ```
 
 ### Running Tests
+
 ```bash
 python -m pytest tests/
+```
+
+**Test Coverage:**
+- `test_foldx_core.py` - 20 tests for FoldX data processing
+- `test_pdb_analyzer.py` - 15+ tests for PLIP parsing and structural analysis (requires Biopython)
+
+---
+
+## Development
+
+### Code Quality Features (v0.2.0+)
+
+- **Type Hints:** All public functions include type annotations for better IDE support
+- **Docstrings:** Comprehensive documentation following Google style
+- **Error Handling:** Specific exception types with detailed logging
+- **Config Validation:** Automatic validation and correction of invalid settings
+
+### Project Structure
+
+```
+foldx-analyzer/
+├── combined_gui.py      # Main application entry point
+├── foldx_analysis.py    # FoldX GUI module
+├── foldx_core.py        # FoldX business logic (tested)
+├── pdb_analyzer.py      # PLIP & Biopython module (tested)
+├── constants.py         # Configuration and constants
+├── tests/
+│   ├── test_foldx_core.py
+│   └── test_pdb_analyzer.py
+├── MACOS_SETUP_GUIDE.md  # macOS installation guide
+└── README.md
 ```

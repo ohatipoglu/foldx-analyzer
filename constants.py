@@ -171,15 +171,29 @@ FILE_ENCODINGS = ['utf-8', 'latin-1', 'cp1254']
 FXOUT_EXTENSION = '.fxout'
 
 # --- Graph rendering ---
+# Figure size in inches for matplotlib plots (width, height)
 FIGURE_SIZE = (10, 6)
+
+# Maximum number of rows to display in BuildModel charts
+# Prevents overcrowding when analyzing large mutant libraries
 BUILDMODEL_MAX_N = 60
+
+# Maximum number of rows to display in AnalyseComplex charts
+# Prevents overcrowding when analyzing multiple complexes
 ANALYSECOMPLEX_MAX_N = 40
 
 # --- PyMOL / PLIP ---
+# Default PyMOL viewport dimensions in pixels
 PYMOL_WIDTH = 1200
 PYMOL_HEIGHT = 900
+
+# Preview image size for PLIP results in GUI (width, height) in pixels
 PLIP_IMAGE_PREVIEW_SIZE = (800, 600)
 
 # --- PDB analysis defaults ---
+# Default target residue number for disulfide bridge analysis
+# Based on common protein structures (e.g., Cys166 in many PDB files)
 DEFAULT_TARGET_RESNUM = 166
+
+# Default target chain identifier for structural analysis
 DEFAULT_TARGET_CHAIN = "A"
