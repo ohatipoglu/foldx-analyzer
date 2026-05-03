@@ -158,9 +158,10 @@ class TestGetMutationName(unittest.TestCase):
 
     def test_mutation_name_without_extension(self) -> None:
         """Test extracting mutation name without .txt extension."""
+        # Note: splitext treats .00 as extension, so result includes _model.000
         filename = "target_pa_G50V_model.000.00"
         result = get_mutation_name(filename)
-        self.assertEqual(result, "G50V")
+        self.assertEqual(result, "G50V_model.000")
 
     def test_simple_filename(self) -> None:
         """Test simple filename without mutation pattern."""

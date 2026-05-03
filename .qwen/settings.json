@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "mcp__pycharm__get_run_configurations",
-      "mcp__pycharm__execute_terminal_command"
+      "mcp__pycharm__execute_terminal_command",
+      "mcp__pycharm__execute_run_configuration"
     ]
   },
   "$version": 3
