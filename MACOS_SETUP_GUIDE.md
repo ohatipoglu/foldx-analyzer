@@ -17,6 +17,10 @@ This guide provides detailed instructions for setting up and running the Bioinfo
 9. [Step 8: Run the Application](#step-8-run-the-application)
 10. [Step 9: Run Tests](#step-9-run-tests)
 11. [Troubleshooting](#troubleshooting)
+12. [Quick Reference Commands](#quick-reference-commands)
+13. [Anaconda Quick Start Guide](#anaconda-quick-start-guide)
+14. [Version Compatibility Matrix](#version-compatibility-matrix)
+15. [Uninstallation](#uninstallation)
 
 ---
 
@@ -116,6 +120,8 @@ Before you begin, ensure you have the following:
 
 Creating a virtual environment isolates project dependencies from your system Python.
 
+### Option A: Using Python venv
+
 1. **Navigate to the project directory**:
 
    ```bash
@@ -153,9 +159,63 @@ Creating a virtual environment isolates project dependencies from your system Py
 
    Both should point to paths inside the `venv` directory.
 
+### Option B: Using Conda (Anaconda or Miniconda)
+
+> **Note:** This section applies to both **Anaconda** (full distribution) and **Miniconda** (minimal installation).
+
+1. **Verify conda installation**:
+
+   ```bash
+   conda --version
+   ```
+
+   If not found, initialize conda:
+
+   ```bash
+   # For Anaconda (default install location)
+   ~/anaconda3/bin/conda init zsh
+   
+   # For Miniconda (default install location)
+   ~/miniconda3/bin/conda init zsh
+   
+   # Restart terminal or run:
+   source ~/.zshrc
+   ```
+
+2. **Navigate to the project directory**:
+
+   ```bash
+   cd ~/Projects/foldx-analyzer
+   ```
+
+3. **Create a conda environment**:
+
+   ```bash
+   conda create -n foldx-env python=3.12
+   ```
+
+4. **Activate the conda environment**:
+
+   ```bash
+   conda activate foldx-env
+   ```
+
+   You should see `(foldx-env)` prefix in your terminal prompt.
+
+5. **Verify environment**:
+
+   ```bash
+   which python
+   which conda
+   ```
+
+> **Tip:** If you already have Anaconda installed, you can skip to Step 4 and use your existing conda installation. Only create a new environment for this project.
+
 ---
 
 ## Step 4: Install Dependencies
+
+### Option A: Using pip (venv or conda environment)
 
 1. **Upgrade pip**:
 
@@ -183,15 +243,47 @@ Creating a virtual environment isolates project dependencies from your system Py
    pip install pytest
    ```
 
+### Option B: Using conda (Anaconda/Miniconda only)
+
+> **Note:** Anaconda comes with many scientific packages pre-installed (numpy, pandas, matplotlib). You may only need to install the missing ones.
+
+1. **Install core dependencies from conda-forge**:
+
+   ```bash
+   conda install -c conda-forge pandas numpy matplotlib biopython
+   ```
+
+2. **Install remaining packages via pip**:
+
+   ```bash
+   pip install customtkinter python-docx
+   ```
+
+3. **Install the project in editable mode** (optional):
+
+   ```bash
+   pip install -e .
+   ```
+
+4. **Install test dependencies** (optional):
+
+   ```bash
+   conda install -c conda-forge pytest
+   ```
+
+> **Tip:** Using `conda install` for scientific packages is often faster and more stable on macOS, especially for Apple Silicon (M1/M2/M3).
+
 ---
 
 ## Step 5: Install PLIP and OpenBabel
 
 PLIP (Protein-Ligand Interaction Profiler) requires OpenBabel and has specific installation requirements on macOS.
 
-### Option A: Using Conda (Recommended)
+### Option A: Using Conda (Recommended for Anaconda/Miniconda Users)
 
-1. **Install Miniconda** (if not already installed):
+> **Note for Anaconda Users:** You already have conda installed. Skip to step 2.
+
+1. **Install Miniconda** (if not already installed and not using Anaconda):
 
    ```bash
    curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
@@ -200,17 +292,22 @@ PLIP (Protein-Ligand Interaction Profiler) requires OpenBabel and has specific i
 
    > **Note:** For Intel Macs, use `Miniconda3-latest-MacOSX-x86_64.sh`
 
-2. **Initialize conda**:
+2. **Initialize conda** (if not already initialized):
 
    ```bash
+   # For Anaconda
+   ~/anaconda3/bin/conda init zsh
+   
+   # For Miniconda
    ~/miniconda3/bin/conda init zsh
+   
+   # Restart terminal or run:
    source ~/.zshrc
    ```
 
-3. **Create a conda environment** (optional but recommended):
+3. **Activate your conda environment**:
 
    ```bash
-   conda create -n foldx-env python=3.12
    conda activate foldx-env
    ```
 
@@ -248,18 +345,19 @@ PLIP (Protein-Ligand Interaction Profiler) requires OpenBabel and has specific i
 
 PyMOL is required for 3D visualization of protein-ligand interactions.
 
-### Option A: Using Conda (Recommended for Academic/Non-Commercial Use)
+### Option A: Using Conda (Recommended for Anaconda/Miniconda Users)
 
-1. **Install PyMOL via conda**:
+> **Note for Anaconda Users:** This is the recommended method as it integrates seamlessly with your existing conda environment.
 
-   ```bash
-   conda install -c conda-forge pymol
-   ```
-
-   Or if using the foldx-env environment:
+1. **Ensure your conda environment is active**:
 
    ```bash
    conda activate foldx-env
+   ```
+
+2. **Install PyMOL via conda**:
+
+   ```bash
    conda install -c conda-forge pymol
    ```
 
@@ -600,6 +698,9 @@ echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
 # Activate virtual environment
 source venv/bin/activate
 
+# Activate conda environment (Anaconda/Miniconda)
+conda activate foldx-env
+
 # Run application
 python combined_gui.py
 
@@ -621,6 +722,57 @@ pip list
 # Update dependencies
 pip install --upgrade -r requirements.txt
 ```
+
+---
+
+## Anaconda Quick Start Guide
+
+> **For macOS users who already have Anaconda installed** - Follow these condensed steps:
+
+### 1. Open Terminal and navigate to project
+
+```bash
+cd ~/Projects/foldx-analyzer
+```
+
+### 2. Create and activate conda environment
+
+```bash
+conda create -n foldx-env python=3.12 -y
+conda activate foldx-env
+```
+
+### 3. Install scientific packages from conda-forge
+
+```bash
+conda install -c conda-forge pandas numpy matplotlib biopython openbabel plip pymol pytest -y
+```
+
+### 4. Install remaining packages via pip
+
+```bash
+pip install customtkinter python-docx
+```
+
+### 5. Install the project
+
+```bash
+pip install -e .
+```
+
+### 6. Run the application
+
+```bash
+python combined_gui.py
+```
+
+### 7. (Optional) Run tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+> **Note:** Your environment name `foldx-env` can be changed to any name you prefer.
 
 ---
 
