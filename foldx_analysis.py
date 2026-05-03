@@ -69,43 +69,43 @@ class FoldXAnalyzerGUI:
         top_frame.pack(pady=10, fill='x', padx=20)
 
         # File / folder selector
-        ctk.CTkLabel(top_frame, text="fxout Dosyası/Klasörü:", font=ctk.CTkFont(weight="bold")).pack(anchor='w', padx=10, pady=(10, 0))
+        ctk.CTkLabel(top_frame, text="fxout File/Folder:", font=ctk.CTkFont(weight="bold")).pack(anchor='w', padx=10, pady=(10, 0))
         file_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         file_row.pack(fill='x', pady=5, padx=10)
         self.file_path = ctk.StringVar(value=os.path.join(os.getcwd(), "data", "fxout"))
         file_entry = ctk.CTkEntry(file_row, textvariable=self.file_path, width=500, state='readonly')
         file_entry.pack(side='left', padx=(0, 10))
-        ctk.CTkButton(file_row, text="Tek Dosya", command=self.browse_file, width=100).pack(side='left', padx=5)
-        ctk.CTkButton(file_row, text="Toplu Klasör", command=self.browse_folder, width=100).pack(side='left')
+        ctk.CTkButton(file_row, text="Single File", command=self.browse_file, width=100).pack(side='left', padx=5)
+        ctk.CTkButton(file_row, text="Batch Folder", command=self.browse_folder, width=100).pack(side='left')
 
         # Mode
         mode_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         mode_row.pack(fill='x', pady=5, padx=10)
-        ctk.CTkLabel(mode_row, text="Mod:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=(0, 10))
+        ctk.CTkLabel(mode_row, text="Mode:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=(0, 10))
         self.mode_var = ctk.StringVar(value="auto")
-        ctk.CTkRadioButton(mode_row, text="Otomatik", variable=self.mode_var, value="auto", command=self._toggle_manual).pack(side='left', padx=10)
-        ctk.CTkRadioButton(mode_row, text="Manuel", variable=self.mode_var, value="manual", command=self._toggle_manual).pack(side='left', padx=10)
+        ctk.CTkRadioButton(mode_row, text="Auto", variable=self.mode_var, value="auto", command=self._toggle_manual).pack(side='left', padx=10)
+        ctk.CTkRadioButton(mode_row, text="Manual", variable=self.mode_var, value="manual", command=self._toggle_manual).pack(side='left', padx=10)
         self.manual_combo = ctk.CTkComboBox(mode_row, values=ALL_COMMANDS, state="disabled", width=150)
         self.manual_combo.pack(side='left', padx=10)
         self.manual_combo.set(ALL_COMMANDS[0])
 
         # Graph title
-        ctk.CTkLabel(top_frame, text="Grafik Başlığı:", font=ctk.CTkFont(weight="bold")).pack(anchor='w', padx=10, pady=(5, 0))
-        self.title_var = ctk.StringVar(value="FoldX Analizi")
+        ctk.CTkLabel(top_frame, text="Graph Title:", font=ctk.CTkFont(weight="bold")).pack(anchor='w', padx=10, pady=(5, 0))
+        self.title_var = ctk.StringVar(value="FoldX Analysis")
         ctk.CTkEntry(top_frame, textvariable=self.title_var, width=500).pack(pady=5, padx=10, anchor='w')
 
         # Output directory
         out_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         out_row.pack(fill='x', pady=5, padx=10)
-        ctk.CTkLabel(out_row, text="Çıktı Klasörü:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=(0, 10))
+        ctk.CTkLabel(out_row, text="Output Folder:", font=ctk.CTkFont(weight="bold")).pack(side='left', padx=(0, 10))
         self.out_dir = ctk.StringVar(value=os.path.join(os.getcwd(), "data", "fxout", "output"))
         ctk.CTkEntry(out_row, textvariable=self.out_dir, width=400).pack(side='left', padx=(0, 10))
-        ctk.CTkButton(out_row, text="Değiştir", command=self.browse_output, width=100).pack(side='left')
+        ctk.CTkButton(out_row, text="Change", command=self.browse_output, width=100).pack(side='left')
 
         # Run button
         btn_row = ctk.CTkFrame(top_frame, fg_color="transparent")
         btn_row.pack(pady=15)
-        self.analyze_btn = ctk.CTkButton(btn_row, text="Analizi Başlat", command=self.run_analysis, font=ctk.CTkFont(weight="bold", size=14))
+        self.analyze_btn = ctk.CTkButton(btn_row, text="Start Analysis", command=self.run_analysis, font=ctk.CTkFont(weight="bold", size=14))
         self.analyze_btn.pack()
 
         # Progress bar
@@ -114,7 +114,7 @@ class FoldXAnalyzerGUI:
         self.progress.set(0)
 
         # Status bar
-        self.status = ctk.CTkLabel(self.root, text="Hazır.", anchor='w', fg_color=("gray85", "gray25"), padx=10)
+        self.status = ctk.CTkLabel(self.root, text="Ready.", anchor='w', fg_color=("gray85", "gray25"), padx=10)
         self.status.pack(side='bottom', fill='x')
 
         # Graph tabs (Using CTkTabview)
@@ -178,7 +178,7 @@ class FoldXAnalyzerGUI:
     ) -> None:
         amino_acids = aux or AMINO_ACIDS
         if stats_df.empty:
-            ax.text(0.5, 0.5, "Analiz için veri bulunamadı.",
+            ax.text(0.5, 0.5, "No data available for analysis.",
                     ha='center', va='center', transform=ax.transAxes)
             return
 
@@ -209,9 +209,9 @@ class FoldXAnalyzerGUI:
     ) -> None:
         if len(df_res) > BUILDMODEL_MAX_N:
             df_res = df_res.iloc[:BUILDMODEL_MAX_N]
-            ax.set_title(ax.get_title() + f" (ilk {BUILDMODEL_MAX_N} satır)")
+            ax.set_title(ax.get_title() + f" (first {BUILDMODEL_MAX_N} rows)")
         ax.plot(range(1, len(df_res) + 1), df_res['energy'], 'o-', color='purple')
-        ax.set_xlabel('Sıra')
+        ax.set_xlabel('Index')
         ax.set_ylabel('Energy')
         ax.grid(True, alpha=0.3)
 
@@ -220,7 +220,7 @@ class FoldXAnalyzerGUI:
     ) -> None:
         if len(df_res) > ANALYSECOMPLEX_MAX_N:
             df_res = df_res.iloc[:ANALYSECOMPLEX_MAX_N]
-            ax.set_title(ax.get_title() + f" (ilk {ANALYSECOMPLEX_MAX_N} satır)")
+            ax.set_title(ax.get_title() + f" (first {ANALYSECOMPLEX_MAX_N} rows)")
         x = np.arange(len(df_res))
         bottom = np.zeros(len(df_res))
         for comp, color in [('backbone', '#1f77b4'),
@@ -254,14 +254,14 @@ class FoldXAnalyzerGUI:
         num = num[keep_cols].dropna(how='all')
         if num.empty or num.shape[1] < 2:
             ax.text(0.01, 0.99,
-                    "PSSM grafik üretilemedi (sayısal veri bulunamadı).",
+                    "PSSM graph could not be generated (no numeric data found).",
                     transform=ax.transAxes, va='top', ha='left')
             ax.axis('off')
         else:
             im = ax.imshow(num.to_numpy(), aspect='auto',
                            interpolation='nearest', cmap='viridis')
-            ax.set_xlabel('Kolonlar')
-            ax.set_ylabel('Satırlar')
+            ax.set_xlabel('Columns')
+            ax.set_ylabel('Rows')
             ax.figure.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     def _render_rnascan(
@@ -269,7 +269,7 @@ class FoldXAnalyzerGUI:
     ) -> None:
         bases = aux or RNA_BASES
         if stats_df.empty:
-            ax.text(0.5, 0.5, "Analiz için veri bulunamadı.",
+            ax.text(0.5, 0.5, "No data available for analysis.",
                     ha='center', va='center', transform=ax.transAxes)
             return
 
@@ -288,23 +288,23 @@ class FoldXAnalyzerGUI:
     def run_analysis(self) -> None:
         input_path = self.file_path.get()
         if not input_path:
-            messagebox.showerror("Hata", "Lütfen dosya/klasör seçin!")
+            messagebox.showerror("Error", "Please select a file/folder!")
             return
 
         output_dir = self.out_dir.get()
         try:
             os.makedirs(output_dir, exist_ok=True)
         except Exception as e:
-            messagebox.showerror("Hata", f"Çıktı klasörü oluşturulamadı:\n{e}")
+            messagebox.showerror("Error", f"Output folder could not be created:\n{e}")
             return
 
         files = collect_files(input_path)
         if not files:
             if not os.path.exists(input_path):
-                messagebox.showerror("Hata", "Geçersiz yol!")
+                messagebox.showerror("Error", "Invalid path!")
             else:
                 messagebox.showwarning(
-                    "Uyarı", "Seçilen klasörde .fxout dosyası bulunamadı.")
+                    "Warning", "No .fxout files found in the selected folder.")
             return
 
         mode = self.mode_var.get()
@@ -336,7 +336,7 @@ class FoldXAnalyzerGUI:
             basename = os.path.basename(file)
             self.root.after(
                 0, self._set_status,
-                f"İşleniyor: {basename} ({idx + 1}/{total})",
+                f"Processing: {basename} ({idx + 1}/{total})",
             )
             try:
                 df, _, _, header_lines = find_header_and_read(file)
@@ -345,7 +345,7 @@ class FoldXAnalyzerGUI:
                 if detected == CMD_UNKNOWN and mode == "auto":
                     self.root.after(
                         0, self._set_status,
-                        f"Uyarı: {basename} için komut tespit edilemedi, atlandı.",
+                        f"Warning: Command could not be detected for {basename}, skipping.",
                     )
                 else:
                     command = manual_cmd if mode == "manual" else detected
@@ -362,13 +362,13 @@ class FoldXAnalyzerGUI:
                         else:
                             self.root.after(
                                 0, self._set_status,
-                                f"{basename} için geçerli sonuç elde edilemedi veya ayrıştırılamadı.",
+                                f"No valid results could be obtained for {basename}.",
                             )
 
             except Exception as e:
                 logger.exception("Error processing %s", file)
                 error_files.append((basename, str(e)))
-                self.root.after(0, self._set_status, f"Hata: {basename} — {e}")
+                self.root.after(0, self._set_status, f"Error: {basename} — {e}")
             finally:
                 progress_val = (idx + 1) / total
                 self.root.after(0, self._update_progress, progress_val)
@@ -418,7 +418,7 @@ class FoldXAnalyzerGUI:
                 renderer(ax, results_df, aux)
             except Exception as e:
                 logger.error(f"Error rendering chart for {basename}: {e}")
-                ax.text(0.5, 0.5, f"Grafik çizim hatası:\n{e}", ha='center', va='center')
+                ax.text(0.5, 0.5, f"Chart rendering error:\n{e}", ha='center', va='center')
 
         fig.tight_layout()
 
@@ -450,18 +450,18 @@ class FoldXAnalyzerGUI:
     ) -> None:
         self.analyze_btn.configure(state='normal')
         if error_files:
-            lines = [f"• {name}: {msg}" for name, msg in error_files]
+            lines = [f"- {name}: {msg}" for name, msg in error_files]
             self._set_status(
-                f"Tamamlandı ({total} dosya). {len(error_files)} hata var.")
+                f"Completed ({total} files). {len(error_files)} errors.")
             messagebox.showerror(
-                "Analiz Hataları",
-                f"Şu dosyalar işlenemedi:\n" + "\n".join(lines),
+                "Analysis Errors",
+                f"Following files could not be processed:\n" + "\n".join(lines),
             )
         else:
-            self._set_status(f"Toplam {total} dosya analiz edildi!")
+            self._set_status(f"Total {total} files analyzed!")
             messagebox.showinfo(
-                "Başarılı!",
-                f"{total} dosya analiz edildi!\nÇıktılar: {output_dir}",
+                "Success!",
+                f"{total} files analyzed!\nOutputs: {output_dir}",
             )
 
 

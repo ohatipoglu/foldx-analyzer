@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__pycharm__get_run_configurations",
+      "mcp__pycharm__execute_terminal_command"
+    ]
+  },
+  "$version": 3
+}

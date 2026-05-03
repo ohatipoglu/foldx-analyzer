@@ -9,6 +9,7 @@ import io
 import logging
 import os
 import re
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -328,7 +329,7 @@ def process_pssm(df: pd.DataFrame) -> tuple[pd.DataFrame, None]:
 # Dispatch table
 # ---------------------------------------------------------------------------
 
-PROCESSORS: dict[str, callable] = {
+PROCESSORS: dict[str, Callable] = {
     CMD_POSITIONSCAN:   process_positionscan,
     CMD_REPAIRPDB:      process_repairpdb,
     CMD_BUILDMODEL:     process_buildmodel,
