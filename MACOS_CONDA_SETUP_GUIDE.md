@@ -85,8 +85,8 @@ We will create a dedicated Conda environment for the project to keep its depende
 
 1.  **Clone the Repository** (if you haven't already):
     ```bash
-    git clone https://github.com/ohatipoglu/foldx-analyzer.git
-    cd foldx-analyzer
+    git clone https://github.com/ohatipoglu/foldx_analyzer.git
+    cd foldx_analyzer
     ```
 
 2.  **Create a new Conda environment**:
@@ -138,7 +138,7 @@ pip install -e .
 
 1.  **Run the application for the first time**:
     ```bash
-    python combined_gui.py
+    python foldx_analyzer_core/combined_gui.py
     ```
     The application will launch and automatically create a `config.ini` file in the project's root directory.
 

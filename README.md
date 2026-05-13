@@ -44,8 +44,8 @@
 **2. Bağımlılıkların Kurulumu:**
 
 ```bash
-git clone https://github.com/ohatipoglu/foldx-analyzer.git
-cd foldx-analyzer
+git clone https://github.com/ohatipoglu/foldx_analyzer.git
+cd foldx_analyzer
 
 # Sanal ortam oluşturup aktif ettikten sonra:
 pip install .
@@ -68,14 +68,14 @@ conda activate foldx-env
 conda install -c conda-forge pandas numpy matplotlib biopython openbabel plip pymol pytest -y
 pip install customtkinter python-docx
 pip install -e .
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 ```
 
 ### Kullanım
 
 Uygulamayı başlatmak için:
 ```bash
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 ```
 
 ### Yapılandırma (`config.ini`)
@@ -127,8 +127,8 @@ pymol_executable_path = C:/Program Files/PyMOL/PyMOL.exe
 **2. Install Dependencies:**
 
 ```bash
-git clone https://github.com/ohatipoglu/foldx-analyzer.git
-cd foldx-analyzer
+git clone https://github.com/ohatipoglu/foldx_analyzer.git
+cd foldx_analyzer
 
 # After creating and activating a virtual environment:
 pip install .
@@ -154,14 +154,14 @@ pip install -e .
 
 > 💡 **Important:** First, install scientific packages with `conda`, then the rest with `pip`. Reversing the order can lead to environment instability.
 
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 ```
 
 ### Usage
 
 To launch the application:
 ```bash
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 ```
 
 ### Configuration (`config.ini`)
@@ -196,7 +196,7 @@ python -m pytest tests/
 ### Project Structure
 
 ```
-foldx-analyzer/
+foldx_analyzer/
 ├── combined_gui.py      # Main application entry point
 ├── foldx_analysis.py    # FoldX GUI module
 ├── foldx_core.py        # FoldX business logic (tested)

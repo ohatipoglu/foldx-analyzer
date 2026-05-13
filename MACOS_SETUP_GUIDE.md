@@ -102,8 +102,8 @@ Before you begin, ensure you have the following:
 2. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/ohatipoglu/foldx-analyzer.git
-   cd foldx-analyzer
+   git clone https://github.com/ohatipoglu/foldx_analyzer.git
+   cd foldx_analyzer
    ```
 
 3. **Verify the repository structure**:
@@ -125,7 +125,7 @@ Creating a virtual environment isolates project dependencies from your system Py
 1. **Navigate to the project directory**:
 
    ```bash
-   cd ~/Projects/foldx-analyzer
+   cd ~/Projects/foldx_analyzer
    ```
 
 2. **Create a virtual environment**:
@@ -185,7 +185,7 @@ Creating a virtual environment isolates project dependencies from your system Py
 2. **Navigate to the project directory**:
 
    ```bash
-   cd ~/Projects/foldx-analyzer
+   cd ~/Projects/foldx_analyzer
    ```
 
 3. **Create a conda environment**:
@@ -458,13 +458,13 @@ The application creates a `config.ini` file on first run. However, you may want 
 2. **Navigate to project directory**:
 
    ```bash
-   cd ~/Projects/foldx-analyzer
+   cd ~/Projects/foldx_analyzer
    ```
 
 3. **Run the application**:
 
    ```bash
-   python combined_gui.py
+   python foldx_analyzer_core/combined_gui.py
    ```
 
 4. **Expected behavior**:
@@ -510,7 +510,7 @@ Verify your installation by running the test suite:
 1. **Navigate to project directory**:
 
    ```bash
-   cd ~/Projects/foldx-analyzer
+   cd ~/Projects/foldx_analyzer
    ```
 
 2. **Run pytest**:
@@ -545,7 +545,7 @@ Verify your installation by running the test suite:
 **Solution:**
 
 ```bash
-sudo chown -R $(whoami) ~/Projects/foldx-analyzer
+sudo chown -R $(whoami) ~/Projects/foldx_analyzer
 ```
 
 Or run with appropriate permissions:
@@ -681,8 +681,8 @@ echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
 
 ### Support
 
-- **GitHub Issues:** [Report bugs or request features](https://github.com/ohatipoglu/foldx-analyzer/issues)
-- **Discussions:** [Ask questions or share ideas](https://github.com/ohatipoglu/foldx-analyzer/discussions)
+- **GitHub Issues:** [Report bugs or request features](https://github.com/ohatipoglu/foldx_analyzer/issues)
+- **Discussions:** [Ask questions or share ideas](https://github.com/ohatipoglu/foldx_analyzer/discussions)
 
 ### Related Tools
 
@@ -702,7 +702,7 @@ source venv/bin/activate
 conda activate foldx-env
 
 # Run application
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 
 # Run tests
 python -m pytest tests/ -v
@@ -732,7 +732,7 @@ pip install --upgrade -r requirements.txt
 ### 1. Open Terminal and navigate to project
 
 ```bash
-cd ~/Projects/foldx-analyzer
+cd ~/Projects/foldx_analyzer
 ```
 
 ### 2. Create and activate conda environment
@@ -763,7 +763,7 @@ pip install -e .
 ### 6. Run the application
 
 ```bash
-python combined_gui.py
+python foldx_analyzer_core/combined_gui.py
 ```
 
 ### 7. (Optional) Run tests
@@ -797,13 +797,13 @@ To remove the application and all dependencies:
 
    ```bash
    deactivate
-   rm -rf ~/Projects/foldx-analyzer/venv
+   rm -rf ~/Projects/foldx_analyzer/venv
    ```
 
 2. **Remove project directory**:
 
    ```bash
-   rm -rf ~/Projects/foldx-analyzer
+   rm -rf ~/Projects/foldx_analyzer
    ```
 
 3. **Remove conda environment** (if created):
@@ -815,7 +815,7 @@ To remove the application and all dependencies:
 4. **Remove globally installed packages** (optional):
 
    ```bash
-   pip uninstall foldx-analyzer plip biopython customtkinter
+   pip uninstall foldx_analyzer plip biopython customtkinter
    ```
 
 ---

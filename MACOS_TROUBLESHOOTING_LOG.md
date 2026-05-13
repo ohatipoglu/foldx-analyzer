@@ -1,6 +1,6 @@
 # macOS Kurulum ve Hata Ayıklama (Troubleshooting) Günlüğü
 
-Bu doküman, FoldX ve PLIP entegrasyonu içeren `foldx-analyzer` projesinin macOS üzerinde (venv kullanılarak) kurulmaya çalışılırken karşılaşılan sorunları ve nihai Conda çözümünü belgelemektedir.
+Bu doküman, FoldX ve PLIP entegrasyonu içeren `foldx_analyzer` projesinin macOS üzerinde (venv kullanılarak) kurulmaya çalışılırken karşılaşılan sorunları ve nihai Conda çözümünü belgelemektedir.
 
 ## Karşılaşılan Sorunlar ve Nedenleri
 
