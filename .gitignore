@@ -50,3 +50,6 @@ htmlcov/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Ignore environment-specific dependency snapshots
+requirements.txt

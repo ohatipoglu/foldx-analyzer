@@ -151,6 +151,9 @@ conda activate foldx-env
 conda install -c conda-forge pandas numpy matplotlib biopython openbabel plip pymol pytest -y
 pip install customtkinter python-docx
 pip install -e .
+
+> 💡 **Important:** First, install scientific packages with `conda`, then the rest with `pip`. Reversing the order can lead to environment instability.
+
 python combined_gui.py
 ```
 
